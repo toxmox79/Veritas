@@ -1,45 +1,58 @@
 'use strict';
-// Heuristische Zutaten-/Bezeichnungsanalyse, keine rechtliche Täuschungsfeststellung.
+/* Veritas rules v2: explainable, conservative label analysis, not legal/medical judgement. */
 function assessAuthenticity(p){
- const name=[p.product_name_de,p.product_name].filter(Boolean).join(' ').toLowerCase();
- const ingredients=[p.ingredients_text_de,p.ingredients_text].find(Boolean)?.toLowerCase()||'';
- const cats=[p.categories,...(p.categories_tags||[])].filter(Boolean).join(' ').toLowerCase();
- const combined=name+' '+cats;
+ const name=(p.product_name_de||p.product_name||'').toLowerCase();
+ const raw=(p.ingredients_text_de||p.ingredients_text||'').trim();
+ const ing=raw.toLowerCase();
+ const category=(p.categories||'').toLowerCase()+' '+(p.categories_tags||[]).join(' ').toLowerCase();
+ const context=name+' '+category;
  const matches=[];
- const add=(kind,title,reason)=>{if(!matches.some(x=>x.title===title))matches.push({kind,title,reason})};
- const test=(re,s)=>re.test(s);
- const cheese=test(/käse|cheese|mozzarella|gouda|emmental|feta|pizza[- ]belag|pizzabelag|käsezubereitung/,combined);
- const meat=test(/fleisch|wurst|schinken|schnitzel|burger|steak|hack|salami|nugget|chicken|hähnchen|protein[- ]?stück/,combined);
- const chocolate=test(/schokolad|schoko|kakao|chocolate|cocoa|kakaohaltig|fettglasur/,combined);
- const dairy=test(/joghurt|yoghurt|milch|sahne|quark|pudding|creme/,combined);
- const fruit=test(/frucht|erdbeer|himbeer|vanille|zitrone|orange|apfel|mango|kirsch|pfirsich/,combined);
- const alternative=test(/\b(vegan|vegane|veganer|veganes|vegetarisch|vegetarische|pflanzliche alternative|plant[- ]based|fleischersatz|käseersatz|milchersatz|analogkäse|kunstkäse|imitat|ersatzprodukt|chocolate substitute|schokoladenersatz|kakaohaltige fettglasur)\b/,combined);
- // Red: substantial substitution that is clearly supported by name or recipe. Not an allegation of unlawful deception.
- if(test(/analogkäse|kunstkäse|käseimitat|käseersatz|fleischersatz|milchersatz|schokoladenersatz|schokolade[n]?[ -]?imitat|kakaohaltige fettglasur/,combined))
-  add('red','Als Ersatz/Imitat bezeichnet','Die Produktbezeichnung benennt ausdrücklich eine Alternative oder Ersatzrezeptur. Das ist nicht automatisch eine Täuschung.');
- if(alternative&&(cheese||meat||dairy)) add('red','Deklarierte Produktalternative','Der Produktname weist auf eine pflanzliche/vegetarische Alternative zu einem tierischen Produkt hin. Klar gekennzeichnete Alternativen sind keine Täuschung.');
- if(cheese&&test(/pflanzliche[snr]? (fett|öl)|kokosfett|palmfett|kokosöl|palmöl|pflanzenfett/,ingredients)&&!test(/\b(käse|cheese|milch|sahne)\b/,ingredients))
-  add('red','Käseähnliche Fett-Rezeptur','Käsebezug im Namen, Pflanzenfett in der Zutatenliste und keine erkennbare Milch-/Käsezutat. Eine genaue Produktprüfung bleibt nötig.');
- if(chocolate&&test(/kakaohaltige fettglasur|schokoladenersatz/,ingredients))add('red','Schokoladenähnlicher Überzug','Die Zutaten nennen kakaohaltige Fettglasur oder einen Schokoladenersatz statt gewöhnlicher Schokolade.');
- if(meat&&test(/\b(sojaprotein|erbsenprotein|weizenprotein|seitan|mykoprotein|texturiertes pflanzenprotein)\b/,ingredients)&&!test(/\b(fleisch|schweinefleisch|rindfleisch|hähnchenfleisch|pute|geflügel)\b/,ingredients))
-  add('red','Fleischähnliche pflanzliche Rezeptur','Proteinbasis aus Pflanzen/Pilzen statt einer deklarierten Fleischzutat.');
- // Yellow: plausible substitutes, but not sufficient to claim imitation.
- if(test(/\b(aroma|aromen|aromastoffe|natürliches aroma|natürliche aromen|geschmacksstoff|raucharoma)\b/,ingredients)){
-  if(test(/\b(geschmack|geschmacksrichtung|style|typ|flavour|flavor|aromatisiert)\b/,name)||fruit||cheese||meat||chocolate||dairy)
-   add('yellow','Geschmack durch zugesetzte Aromen','Aromen sind deklariert und können Geschmack verstärken oder nachbilden. Daraus folgt nicht, dass die namensgebende Zutat fehlt.');
- }
- if(fruit&&test(/\b(geschmack|geschmacksrichtung|aromatisiert)\b/,name)&&!test(/frucht|fruchtpüree|fruchtsaft|erdbeer|himbeer|apfel|mango|kirsch|orange|vanille|zitrone/,ingredients))
-  add('yellow','Namensgebende Zutat nicht erkennbar','Der Name beschreibt einen Geschmack; eine entsprechende Frucht-/Pflanzenzutat ist in den verfügbaren Angaben nicht erkennbar.');
- if(cheese&&test(/pflanzenfett|pflanzliche fette|kokosfett|palmfett|pflanzenöl|kokosöl|palmöl/,ingredients))
-  add('yellow','Pflanzenfett im käsebezogenen Produkt','Das Fett kann eine technische Funktion haben oder Milchfett ersetzen. Seine Anwesenheit beweist keinen Ersatz.');
- if(chocolate&&test(/\b(palmfett|kokosfett|pflanzenfett|pflanzliche fette|palmöl|kokosöl)\b/,ingredients))
-  add('yellow','Pflanzenfett bei Schokoladenbezug','Kann Füllung, Glasur oder Schokoladenanteil betreffen. Ohne Rezepturanteile ist kein Schokoladenersatz bewiesen.');
- if(test(/\b(fermentationsbasiert|präzisionsfermentation|precision fermentation|zellkultiviert|cultivated meat|zellkulturfleisch|lab grown)\b/,combined+' '+ingredients))
-  add('yellow','Neuartiges Herstellungsverfahren deklariert','Eine Bezeichnung weist auf Fermentation oder Zellkultur hin. Verfahren und genaue Zutaten müssen getrennt bewertet werden.');
- const serious=matches.some(x=>x.kind==='red'),minor=matches.some(x=>x.kind==='yellow');
- const hasIngredients=Boolean(ingredients.trim());
- const level=serious?'red':minor?'yellow':hasIngredients?'green':'unknown';
- const heading={red:'Ersatz- oder Nachahmungsmerkmale erkannt',yellow:'Rezeptur genauer prüfen',green:'Keine konkreten Nachahmungshinweise',unknown:'Nicht beurteilbar'}[level];
- const detail={red:'Mindestens ein deutlicher Hinweis auf ein Alternativ- oder Ersatzprodukt. Die Kennzeichnung kann dabei völlig korrekt sein.',yellow:'Mindestens ein Verdachtsmerkmal ist erkennbar; die Daten belegen keine Täuschung.',green:'In den erfassten Zutaten und Bezeichnungen wurde kein definiertes Nachahmungsmerkmal gefunden. Das beweist weder Natürlichkeit noch Laborfreiheit.',unknown:'Es fehlt eine Zutatenliste. Eine belastbare Ampelfarbe ist nicht möglich.'}[level];
- return {level,heading,detail,matches,hasIngredients};
+ const add=(kind,title,reason,evidence)=>{if(!matches.some(x=>x.title===title))matches.push({kind,title,reason,evidence:evidence||''})};
+ const has=(pattern,where=ing)=>pattern.test(where);
+ // A disclosed substitute and a deceptive label are different things.
+ if(has(/\b(analogkäse|kunstkäse|käseimitat|käseersatz|fleischersatz|milchersatz|schokoladenersatz|schokoladenimitat|kakaohaltige fettglasur|schmelzscheiben auf pflanzenfettbasis)\b/,context+' '+ing))
+  add('red','Ersatzprodukt oder Ersatzüberzug','Ein Ersatzcharakter ist ausdrücklich benannt. Eine korrekte Kennzeichnung ist keine Täuschung.','Ersatz- oder Imitatbezeichnung');
+ const cheese=has(/käse|gouda|emmental|mozzarella|cheddar|feta|parmesan|pizzabelag|pizza[- ]?belag|schmelzscheibe|cheese/,context);
+ const meat=has(/fleisch|wurst|schinken|schnitzel|burger|steak|salami|nugget|hähnchen|chicken|leberwurst/,context);
+ const cocoa=has(/schokolade|schoko|kakao|chocolate|praline|glasur/,context);
+ const dairy=has(/milch|joghurt|yoghurt|quark|sahne|butter|eiscreme|speiseeis/,context);
+ const juice=has(/saft|nektar|fruchtdrink|fruchtgetränk|fruchtsaft|getränk/,context);
+ const spicesOnly=has(/gewürz|kräuter|pfeffer|paprika|zimt|salz/,context)&&!has(/geschmack|aromatisiert|geschmacksrichtung/,context);
+ const veg=has(/\b(vegan|vegane|veganes|veganer|vegetarisch|pflanzliche alternative|plant.based|meat.free|dairy.free)\b/,context);
+ if(veg&&(cheese||meat||dairy))add('red','Als pflanzliche Alternative gekennzeichnet','Das Produkt ersetzt eine klassische tierische Produktart. Der Ersatz ist im Namen erkennbar, nicht versteckt.','Vegan/vegetarisch + Produktart');
+ if(cheese&&has(/\b(pflanzenfett|pflanzliche fette|kokosfett|palmfett|pflanzenöl|kokosöl|palmöl)\b/)&&!has(/\b(käse|gouda|emmentaler|mozzarella|milch|quark|molke|sahne)\b/))
+  add('red','Käseähnliche Rezeptur ohne erkennbare Milchzutat','Pflanzenfett ist deklariert, jedoch keine klassische Käse-/Milchzutat erkennbar. Zutatenliste und Verkehrsbezeichnung prüfen.','Pflanzenfett ohne identifizierbare Milch/Käse-Zutat');
+ if(meat&&has(/\b(sojaprotein|erbsenprotein|weizenprotein|seitan|mykoprotein|texturiertes pflanzenprotein|ackerbohnenprotein)\b/)&&!has(/\b(schweinefleisch|rindfleisch|hähnchenfleisch|putenfleisch|geflügelfleisch|fleischanteil|fleischzubereitung)\b/))
+  add('red','Fleischähnliche Proteinrezeptur','Die erkennbare Proteinbasis stammt aus Pflanzen oder Pilzen, nicht aus deklariertem Fleisch.','Pflanzen-/Pilzprotein statt Fleisch');
+ if(cocoa&&has(/kakaohaltige fettglasur|kakaohaltiger fettüberzug|schokoladenersatz|schokoimitat/))
+  add('red','Kakaohaltiger Ersatzüberzug','Der Zutatenwortlaut beschreibt eine Fettglasur statt Schokolade. Dies kann auch nur einen Produktbestandteil betreffen.','Kakaohaltige Fettglasur');
+ // Technology changes (e.g. processed cheese) are yellow, not an allegation that it lacks actual cheese.
+ if(cheese&&has(/schmelzkäse|schmelzkaese|schmelzkäsezubereitung|schmelzkäsescheiben|schmelzscheiben/,context+' '+ing))
+  add('yellow','Schmelzkäse statt traditionellem Schnittkäse','Schmelzkäse kann echten Käse enthalten, wird aber zu einer neuen Rezeptur verarbeitet. Die Menge echten Käses lässt sich ohne Herstellerangaben oft nicht bestimmen.','Schmelzkäse-Bezeichnung');
+ if(cheese&&has(/schmelzsalze?|natriumcitrat|kaliumcitrat|diphosphate|polyphosphate|\be\s*3(?:31|32|39|40|41|42|50|51|52)\b/))
+  add('yellow','Schmelzsalze in käsebezogenem Produkt','Schmelzsalze verändern die Textur. Sie belegen keine vollständige Ersetzung des Käses.','Schmelzsalz / Phosphat / Citrat');
+ if(cocoa&&has(/\b(palmfett|kokosfett|pflanzenfett|pflanzliche fette|palmöl|kokosöl)\b/))
+  add('yellow','Zusätzliche Pflanzenfette bei Schokoladenbezug','Kann Füllung oder Überzug betreffen. Allein daraus folgt kein Schokoladenimitat.','Pflanzliches Fett');
+ const flavor=has(/\b(aroma|aromen|aromastoffe|natürliches aroma|natürliche aromen|raucharoma|geschmacksaroma|geschmacksstoffe)\b/);
+ const flavorName=has(/geschmack|geschmacksrichtung|aromatisiert|\btyp\b|flavou?r/,name);
+ if(flavor&&(flavorName||(!spicesOnly&&(cheese||meat||cocoa||dairy||juice))))
+  add('yellow','Zugesetzte Aromen bei namensgebendem Geschmack','Aromen können Geschmacksnoten nachbilden oder verstärken; sie beweisen nicht, dass die namensgebende Zutat fehlt.','Aroma in Zutatenliste');
+ const flavors=[['Erdbeer',/erdbeer/,/erdbeer/],['Vanille',/vanille/,/vanilleschote|vanilleextrakt|gemahlene vanille|bourbon-vanille/],['Himbeer',/himbeer/,/himbeer/],['Kirsche',/kirsch/,/kirsch/],['Mango',/mango/,/mango/],['Zitrone',/zitrone|zitronen/,/zitrone|zitronensaft/],['Orange',/orange|orangen/,/orange|orangen/],['Apfel',/apfel/,/apfel|äpfel/]];
+ if(flavor)for(const [label,n,i] of flavors){if(n.test(name)&&!i.test(ing))add('yellow',label+'geschmack ohne erkennbare '+label+'zutat','In der erfassten Zutatenliste ist keine passende namensgebende Zutat zu erkennen; Rezeptur und vollständige Deklaration prüfen.','Geschmack im Namen, keine entsprechende Zutat erfasst')}
+ if(juice&&has(/fruchtsaftgetränk|fruchtnektar|nektar|fruchtdrink|fruchtgetränk/,context))
+  add('yellow','Fruchtgetränk statt reinem Saft','Nektar und Fruchtsaftgetränke sind andere Produktarten als 100 % Fruchtsaft; die Zutaten und Fruchtgehalte entscheiden.','Getränke-Verkehrsbezeichnung');
+ if(dairy&&has(/\b(milchmischgetränk|milchzubereitung|dessertcreme|puddingpulver|speiseeiszubereitung)\b/,context))
+  add('yellow','Zubereitung statt unverarbeitetem Milchprodukt','Die Produktart deutet auf eine zusammengesetzte Rezeptur; der tatsächliche Milchanteil ist anhand der Angaben zu prüfen.','Zubereitungsbezeichnung');
+ if(has(/präzisionsfermentation|precision fermentation|zellkultiviert|zellkulturfleisch|cultivated meat|zellkultur/,context+' '+ing))
+  add('yellow','Biotechnologisches Herstellungsverfahren benannt','Herstellungsverfahren erkennbar. Ohne Kennzeichnung lässt sich eine solche Herstellung aus dem Barcode allein nicht ausschließen.','Verfahrenshinweis');
+ // Broad use of modified starch, protein isolates etc. is a processing signal, not evidence of imitation.
+ if(has(/modifizierte stärke|maltodextrin|hydrolysiertes pflanzenprotein|proteinisolat|glukose-fruktose-sirup|glucose-fructose-sirup|gehärtetes pflanzenfett/))
+  add('yellow','Industriell aufbereitete Zutat','Ein isolierter oder technisch modifizierter Bestandteil ist deklariert. Das bedeutet nicht automatisch, dass ein Lebensmittel nachgeahmt wird.','Modifizierte/isolierte Zutat');
+ const nova=Number(p.nova_group);
+ const processing=nova>=1&&nova<=4?nova:null;
+ const hasIngredients=Boolean(raw);
+ let level=matches.some(x=>x.kind==='red')?'red':matches.some(x=>x.kind==='yellow')?'yellow':hasIngredients?'green':'unknown';
+ const heading={red:'Ersatzmerkmale festgestellt',yellow:'Rezeptur oder Verarbeitung prüfen',green:'Keine konkreten Ersatzmerkmale erkennbar',unknown:'Mangels Zutaten nicht beurteilbar'}[level];
+ const detail={red:'Die verfügbaren Angaben weisen auf eine Alternativ- oder Ersatzrezeptur hin. Nicht gleichzusetzen mit rechtswidriger Verbrauchertäuschung.',yellow:'Bestimmte Angaben sprechen für Verarbeitung, Geschmacksnachbildung oder eine abweichende Produktart. Kein Beweis für Täuschung.',green:'In den vorliegenden Angaben wurden keine festgelegten Ersatz- oder Nachahmungsmerkmale entdeckt. Weder Natürlichkeit noch vollständige Rezepturtreue ist damit garantiert.',unknown:'Es fehlt eine Zutatenliste. Keine grüne Entwarnung möglich.'}[level];
+ return {level,heading,detail,matches,hasIngredients,processing,processingLabel:processing===4?'Hochverarbeitet (NOVA 4)':processing?'NOVA '+processing:'NOVA unbekannt',limits:'Aus den Etikett-/Community-Daten lassen sich Herstellungsverfahren, Herkunft einzelner Moleküle, nicht deklarierte Rückstände und Zutatenmengen nicht sicher bestimmen.'};
 }
