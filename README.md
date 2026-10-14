@@ -12,3 +12,12 @@
 Alle Dateien gemeinsam auf einem HTTPS-Webserver (z. B. GitHub Pages) veröffentlichen. Die Icons im `icons`-Verzeichnis müssen erhalten bleiben. Für Kamera-Scanning ist HTTPS oder localhost nötig. Produktabfragen benötigen Internet.
 
 Veritas nutzt Open Food Facts als Community-Datenquelle (ODbL); die Daten können unvollständig oder veraltet sein. Lokale Einstellungen für Allergien und zu meidende Zusatzstoffe bleiben bei Aktualisierung unter derselben Domain erhalten.
+
+
+## Version 1.4 – Anzeige und Barrierearmut
+- Unter Einstellungen individuell ein-/ausblendbare Analysebereiche (Authentizität, NOVA, Nährwerte, Zutaten, Stoffkunde, Nachahmung).
+- Einfachansicht und „Alle anzeigen“.
+- Schrift- und Bediengröße 100–150 % sowie optional höherer Kontrast.
+- Einstellungen werden lokal gespeichert und sofort angewendet.
+- Produktidentität und persönliche Allergie-/Meidungswarnungen können nicht ausgeblendet werden.
+- Bestehende Allergie- und Meidungsprofile bleiben beim Update erhalten.
