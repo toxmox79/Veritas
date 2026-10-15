@@ -11,3 +11,42 @@
 
 /* Wissenschaftliche E-Nummern-Steckbriefe */
 .chemicalInfo{min-width:0;flex:1}.healthInfo{margin:12px 0 3px;border:1px solid #d5e1d8;border-radius:11px;background:#f6f9f5;padding:9px 12px;line-height:1.55}.healthInfo.attention{background:#fff5e4;border-color:#edc88d}.healthInfo.context{background:#f0f5fa;border-color:#c6d8e8}.healthInfo.unknown{background:#f1f2f3;border-color:#d7dadd}.healthInfo summary{font-weight:750;cursor:pointer;line-height:1.4}.healthInfo summary:focus-visible{outline:2px solid #27573c;outline-offset:4px}.healthBody p{margin:11px 0;font-size:14px;color:#263d31}.healthBody a{font-weight:700}.highContrast .healthInfo{border:2px solid #35493b}.highContrast .healthBody p{color:#17291d}
+
+/* v1.8 – kompakte Startansicht: Scanner möglichst weit oben */
+.hero{padding-top:26px;padding-bottom:12px}
+.hero h1{margin:12px 0 18px}
+.hero .scanform{margin-top:0}
+.hero .mini{margin-top:10px;margin-bottom:0}
+#scanner{scroll-margin-top:12px}
+#scanner .section-head{margin-bottom:14px}
+@media(max-width:680px){
+  .hero{padding-top:16px;padding-bottom:10px}
+  .hero h1{font-size:clamp(33px,8vw,42px);line-height:1.08;letter-spacing:-.055em;margin:9px 0 14px}
+  .hero .eyebrow{font-size:10px}
+}
+
+
+/* v1.9 – allgemeine Bewertungshinweise nur auf Wunsch einblenden */
+.infoHelp{position:relative;display:inline-block;flex:0 0 auto;vertical-align:middle;isolation:isolate}
+.infoHelp summary{list-style:none;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:1.5px solid #cbdccf;border-radius:50%;background:#f0f6f0;color:#225a45;font-size:19px;font-weight:800;cursor:pointer;user-select:none;line-height:1}
+.infoHelp summary::-webkit-details-marker{display:none}
+.infoHelp summary::marker{content:""}
+.infoHelp summary:hover,.infoHelp[open] summary{background:#dceee1;border-color:#76a58c}
+.infoHelp summary:focus-visible{outline:3px solid #145d45;outline-offset:3px}
+.helpBubble{position:absolute;top:calc(100% + 8px);right:0;z-index:50;box-sizing:border-box;width:min(350px,calc(100vw - 40px));max-height:min(65vh,540px);overflow:auto;padding:15px 17px;border:1px solid #bfd2c3;border-radius:12px;background:#fff;color:#234338;font-size:14px;font-weight:400;line-height:1.55;text-align:left;box-shadow:0 14px 30px #143b2b27}
+.helpBubble p{margin:8px 0 0;line-height:1.5}
+.helpBubble strong{font-size:15px;color:#1a4938}
+.headActions,.footerMeta{display:flex;align-items:center;gap:9px}
+.headActions{margin-left:auto}
+.footerMeta{justify-content:flex-start}
+#source{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#source .infoHelp{margin-left:auto}
+.authProcessing{font-size:13px;color:#61736a;margin:11px 1px 0;line-height:1.4}
+.section-head>.infoHelp{margin-left:auto;margin-bottom:11px}
+.headActions{margin-bottom:11px}
+.personalAlerts .section-head{margin-bottom:8px}
+.personalAlerts .section-head h3{margin:0 0 8px}
+.personalAlerts .section-head .infoHelp{margin-bottom:8px}
+.highContrast .helpBubble{border:2px solid #284b35;color:#142f20}
+.highContrast .infoHelp summary{border:2px solid #214630;color:#123722}
+@media(max-width:680px){.infoHelp summary{width:38px;height:38px;min-width:38px;font-size:20px}.helpBubble{width:min(330px,calc(100vw - 48px));font-size:14px}.section-head{align-items:flex-start}#source{align-items:flex-start}}
