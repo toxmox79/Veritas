@@ -1,3 +1,44 @@
+# Veritas PWA v2.6 – Vorsorgeprinzip und Speiseölbewertung
+
+## Neu in dieser Version
+
+- **Vorsorgeprinzip:** Naturnahe, weniger stark verarbeitete Rezeptur bei vergleichbarem Nutzen standardmäßig bevorzugen. Medizinische Kontraindikationen, Allergien und bessere Fettprofile werden dadurch nicht überstimmt.
+- **Einstellungen → Naturnähe & Vorsorgeprinzip:** Vorrang ein-/ausschalten, Ölverwendung für kalte oder warme Speisen wählen. Speicherung erfolgt lokal.
+- **Einzelanalyse:** Neues Feld **Körpernutzen & Vorsorge** mit begründeten Beobachtungen und aufklappbaren Wissenslücken.
+- **Speiseöle:** Erkennung von Raps-, Oliven-, Sonnenblumen-, Lein-, Walnuss-, Sesam-, Erdnuss-, Kokos- und weiteren Ölen auch ohne Zutatenverzeichnis, wenn die Produktbezeichnung eindeutig ist. Herstellungsangaben (kaltgepresst, nativ, raffiniert) nur bei ausdrücklicher Angabe. Kennzeichnung als Ableitung aus der Produktbezeichnung, keine Laborprüfung.
+- **Vergleich:** Öle werden nach Fettsäureprofil und geplanter Verwendung bewertet; nicht nach Kalorien oder der Anzahl deklarierter Zutaten. Preisvergleich bleibt separat.
+- **Alternativen:** Sortenreine Öle ohne Zutatenliste werden nicht ausgeschlossen; bei fehlendem Fettprofil keine erfundene Gesundheitsbewertung.
+
+**Grenzen:** Aus dem Barcode lässt sich keine Reinheit, Herstellungs- oder Oxidationsqualität nachweisen. „Natürlich“ bedeutet nicht automatisch gesund, „industriell“ nicht automatisch schädlich. Fehlende Langzeitdaten sind kein Beweis für eine konkrete Gefahr. Vergleiche ersetzen keine individuelle medizinische Beratung oder den Etikett-/Allergenabgleich.
+
+**EU-Rechtsgrundlage für Zutatenverzeichnisse:** [Verordnung (EU) Nr. 1169/2011, Artikel 19](https://eur-lex.europa.eu/legal-content/DE-EN/ALL/?uri=CELEX:32011R1169).
+
+**Fettsäure-Einordnung:** [WHO: Gesunde Ernährung](https://www.who.int/en/news-room/fact-sheets/detail/healthy-diet) – die Zusammensetzung der Fette ist ernährungsphysiologisch relevanter als die Kalorienzahl verschiedener Öle.
+
+**Installation:** Dateien aus `lebensmittel-check/` gemeinsam auf GitHub Pages veröffentlichen. Die Manifest- und Service-Worker-Dateien müssen im gleichen Webroot liegen. Installierbare PWA benötigt HTTPS (oder localhost). Die Produktabfrage braucht Internet.
+
+----
+
+# Veritas v2.5 – passende Alternativen finden
+
+## Neu
+- Einzelscan: manuell „Passende Alternativen suchen“ starten.
+- Vergleich: Alternativen gezielt zu A oder B suchen.
+- Suche innerhalb der passenden Lebensmittelkategorie über die Open-Food-Facts-Suche (API v2, begrenzte Ergebnisse, 20-Minuten-Tabcache).
+- Drei getrennte Ansichten: naturnähere Rezeptur, günstigeres Nährwertprofil, belegbar günstigerer Kilopreis.
+- Begründungen für Vorteile; fehlende Zutaten oder Nährwerte sind **kein** Vorteil.
+- Lade-/Fehler-/Leerzustände; aus Empfehlungen direkt zur Produktanalyse oder zum Zweiervergleich.
+- Lokale Eingabe von Packungspreis und Packungsgröße; kein Preisfeed und keine behaupteten Echtzeitpreise.
+- Bei bekannten persönlichen Allergenen oder Meidungsstoffen keine positive Empfehlung; Datenlücken bleiben ausdrücklich als unsicher markiert.
+
+**Grenzen:** Es wird nur eine begrenzte Auswahl ähnlicher Produkte aus Open Food Facts durchsucht. Nicht alle Lebensmittel sind vollständig erfasst; neue Rezepturen können abweichen. „Naturnäher“, „günstiger“ und „für die Ernährung besser“ sind unterschiedliche Maßstäbe. Krankheitsbezogene Eignung kann durch Barcode-Daten nicht freigegeben werden. Alle lokalen Preise sind manuell einzugeben bzw. als historische Richtpreise gekennzeichnet. Gesundheitsprofile werden nicht an Open Food Facts übertragen.
+
+# Veritas v2.4 – Preis-Leistungs-Vergleich
+
+Neu: Vergleich je Kilogramm/Liter, je 10 g Eiweiß, nachvollziehbare Rezepturvorteile und ausdrücklich gekennzeichnete Referenzpreise. Für alle Produkte können aktuelle Ladenpreise und Packungsgrößen selbst eingetragen werden; diese Daten bleiben lokal im Browser. Preisquellen sind keine Live-Angebote. Bei fehlenden Angaben oder unterschiedlichen Lebensmittelgruppen wird kein universelles Gesundheitsurteil ausgegeben.
+
+Referenzbeispiel (15.10.2026 abgerufene, zuletzt gemeldete Preise): EDEKA 4311501125809, 500 g / 1,39 €; REWE 4337256368810, 200 g / 0,89 €. Quellen: https://www.supermarktcheck.de/product/435403-gutgUEnstig-speisequark-magerstufe-500g-500-g und https://www.supermarktcheck.de/rewe/sortiment/high-protein-quarkcreme . Verpackungsdaten: Handelshof (EAN 4311501125809); FoodDB (EAN 4337256368810).
+
 # Veritas PWA v1.3
 
 ## Neuerungen
@@ -78,3 +119,22 @@ Installationshinweis: Nach Aktualisierung auf GitHub Pages die Seite bei Bedarf 
 - Chargenrückruf Nudossi: https://www.vadossi.de/2026/06/15/produktrueckruf-fuer-nudossi-haselnuss-nougat-creme/
 
 **Einschränkungen:** Unterschiedliche Rezeptur-/Produktstände, länderspezifische Varianten und Allergene können auf Händlerseiten veraltet oder unvollständig sein. Bei Allergien, Gesundheitsprofilen und Rückrufen Etikett/MHD prüfen. „Weniger Zucker“ ersetzt keine Beurteilung der Kohlenhydrate und Portionsgröße bei Diabetes.
+
+
+## Veritas 2.2 – strukturierte Einstellungen und Bereichsschriftgrößen
+
+- Einstellungen in fünf großen, aufklappbaren Gruppen: Anzeige, Schriftgrößen, Gesundheit, Allergien und Zusatzstoffe.
+- Globale Schriftgröße (100–150 %) und eigene zusätzliche Vergrößerung (100–180 %) für Zutatenliste, Zusatzstoffe, Nährwerte, Ampel, Verarbeitung, Rezepturhinweise, persönliche Warnungen und den Produktvergleich.
+- Alle Anzeige-/Schriftpräferenzen werden beim Verändern automatisch unter `veritas-display-v1` lokal gespeichert; bestehende Profile werden eingelesen und um Standardwerte für Bereichsschriften erweitert.
+- Allergien, Krankheiten und zu meidende Zusatzstoffe werden weiterhin erst mit „Prüfprofil speichern“ übernommen. „Profil zurücksetzen“ betrifft diese persönlichen Angaben, **nicht** Anzeige und Schriftgrößen.
+- Auf Smartphones bleiben alle Einstellungsgruppen mit großen Tippflächen erreichbar.
+
+
+## v2.3 – Keine falsche Datenlücke bei ausgenommenen Zutatenverzeichnissen
+
+- EAN 4311501125809: anhand des EAN-bezogenen Händlereintrags als GUT&GÜNSTIG Speisequark Magerstufe erfasst, inkl. Allergiehinweis Milch und Nährwerten; **keine erfundene konkrete Zutatenliste**.
+- Manche Produkte benötigen nach Art. 19 VO (EU) 1169/2011 unter Bedingungen kein Zutatenverzeichnis. Veritas unterscheidet zwischen dieser Möglichkeit und fehlender Datenerfassung.
+- Bei Quark vs. Quarkcreme begründete Rezepturtendenz auf Basis dokumentierter Zusatz-/Ersatzmerkmale; kein pauschales Gesundheitsurteil.
+- Hersteller-/Händlerangaben und eigene Etikett-Ergänzungen haben in der Produktdarstellung Quellenbelege. Die Originalverpackung hat Vorrang.
+
+- Ausgeschriebene Zusatzstoffnamen (z. B. Guarkernmehl/E412, Acesulfam K/E950, Sucralose/E955) werden ergänzend erkannt, auch wenn keine E-Nummer im Text steht.

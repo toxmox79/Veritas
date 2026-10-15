@@ -125,3 +125,126 @@
 .compareHighlights h3{margin:0 0 6px;font-size:16px;color:#19553c}
 .compareHighlights ul{margin:5px 0 0;padding-left:21px;color:#314d3c;font-size:14px;line-height:1.7}
 .compareHighlights li+li{margin-top:3px}
+
+
+/* Veritas 2.2: aufgeräumte, große Einstellungsgruppen und selektive Schriftgrößen */
+.settings{max-width:900px;margin-left:auto;margin-right:auto;scroll-margin-top:12px}
+.settingsTitle{align-items:flex-start;margin-bottom:16px}
+.settingsTitle h2{font-size:clamp(23px,3vw,31px)}
+.settingsSubtitle{margin:8px 0 0;max-width:620px}
+.settingsAccordionList{display:grid;gap:12px}
+.settingsAccordion{border:1px solid #d7e4d9;border-radius:17px;background:#fff;overflow:clip;box-shadow:0 3px 12px #1d382507}
+.settingsAccordion[open]{border-color:#b5d1bb;box-shadow:0 8px 25px #1d38250c}
+.settingsAccordionHead{display:flex;align-items:center;gap:14px;min-height:82px;padding:16px 19px;cursor:pointer;list-style:none;user-select:none}
+.settingsAccordionHead::-webkit-details-marker{display:none}
+.settingsAccordionHead::marker{content:''}
+.settingsAccordionHead:focus-visible{outline:3px solid #247759;outline-offset:-3px;border-radius:16px}
+.settingsAccordion[open] .settingsAccordionHead{background:#eff6ee;border-bottom:1px solid #dbe8dd}
+.settingsIcon{display:flex;align-items:center;justify-content:center;width:43px;height:43px;border-radius:13px;background:#e4f0e6;color:#1f6648;font-size:23px;font-weight:800;flex:0 0 43px}
+.settingsAccordionText{flex:1;min-width:0}
+.settingsAccordionText strong{display:block;color:#183a2e;font-size:clamp(16px,2.5vw,20px);line-height:1.28}
+.settingsAccordionText small{display:block;color:#62776b;font-size:13px;line-height:1.38;margin-top:4px}
+.accordionCounter{display:inline-flex;align-items:center;justify-content:center;min-width:55px;border-radius:30px;background:#f1f4ee;color:#476653;padding:6px 9px;font-size:12px;font-weight:750;white-space:nowrap}
+.settingsChevron{width:12px;height:12px;border-right:2px solid #34664e;border-bottom:2px solid #34664e;transform:rotate(45deg);margin-right:4px;transition:transform .15s;flex:0 0 12px}
+.settingsAccordion[open] .settingsChevron{transform:rotate(225deg)}
+.settingsAccordionContent{padding:19px 22px 22px}
+.settingsAccordionContent>.muted:first-child{margin-top:0}
+.settings .settingsActions{margin-top:17px}
+.settingsSaveBar{padding-top:12px}
+.settingsSaveBar .settingsActions .primary{min-height:47px}
+.settingsSaveBar .settingsActions .secondary{min-height:47px}
+.settingsSaveBar #settingsMessage:not(:empty){font-weight:700;color:#225d45}
+.settingsSaveBar .saveHint{font-size:12px;margin:7px 0 0}
+.settings .generalFont{background:#f4f8f2;border-radius:12px;padding:16px;border:1px solid #dce8da}
+.generalFont label{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.generalFont label strong{font-size:16px}
+.generalFont label span{font-weight:800;color:#246047}
+.generalFont input[type=range]{width:100%;min-height:37px;accent-color:#1a7254}
+.generalFont .scaleMarks{margin:0 0 3px}
+.generalFont .muted{margin-bottom:0}
+.sectionFontHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-top:24px;margin-bottom:14px}
+.sectionFontHeader h3{margin:0 0 6px!important;font-size:17px}
+.sectionFontHeader p{margin:0}
+.resetFont{font-size:12px;flex-shrink:0;min-height:36px}
+.sectionFontControls{border:1px solid #dae6dc;border-radius:13px;overflow:hidden}
+.sectionFontRow{padding:14px 16px;background:#fff;border-bottom:1px solid #e4ebe4;display:grid;grid-template-columns:minmax(190px,1fr) minmax(200px,1fr);align-items:center;gap:16px}
+.sectionFontRow:last-child{border-bottom:none}
+.sectionFontRow:nth-child(even){background:#f8faf6}
+.sectionFontRowLabel label{font-weight:750;color:#204a3c;display:block;font-size:15px}
+.sectionFontRowLabel small{font-size:12px;color:#65796a;display:block;margin-top:3px}
+.sectionFontControl{display:flex;align-items:center;gap:13px}
+.sectionFontControl input[type=range]{width:100%;accent-color:#267c59;min-height:36px;cursor:pointer;min-width:0}
+.sectionFontControl output{font-size:14px;min-width:52px;text-align:right;font-weight:800;color:#174b38;font-variant-numeric:tabular-nums}
+.contrastChoice{margin-top:18px!important}
+.settings .customLabel{display:block;margin-top:17px}
+.settings .settingsAccordion .choices{grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr))}
+.highContrast .settingsAccordion,.highContrast .sectionFontControls{border:2px solid #365746}
+.highContrast .settingsAccordionText small,.highContrast .sectionFontRowLabel small{color:#1e4330}
+@media(max-width:680px){
+ .settingsAccordionHead{padding:13px 12px;min-height:75px;gap:10px}
+ .settingsIcon{width:39px;height:39px;flex-basis:39px;font-size:21px}
+ .settingsAccordionText small{font-size:12px}
+ .accordionCounter{font-size:11px;padding:5px 7px;min-width:0}
+ .settingsAccordionContent{padding:13px 12px 17px}
+ .sectionFontHeader{flex-direction:column;gap:12px}
+ .sectionFontRow{grid-template-columns:1fr;gap:4px;padding:12px}
+ .sectionFontControl{gap:9px}
+ .sectionFontControl output{min-width:51px}
+}
+
+/* v2.4: optionale, überprüfbare Preise statt erfundener Live-Angebote */
+.comparePriceBox{border-top:1px solid #d8e5d9;margin-top:14px;padding-top:13px}
+.comparePriceBox>strong{display:block;font-size:14px;margin-bottom:9px;color:#234b35}
+.comparePriceFields{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.comparePriceFields label{font-size:12px;line-height:1.35;font-weight:700;color:#375743}
+.comparePriceFields input{display:block;width:100%;min-width:0;margin-top:7px;padding:11px 9px;font:inherit;font-size:16px;border:1px solid #b9cdbd;background:#fff;border-radius:9px;color:#183c2e}
+.comparePriceMeta{font-size:12px;line-height:1.45;margin-top:9px;color:#6b776d}
+.compareValuePanel{margin:0 0 16px;padding:18px;border-radius:16px;background:#eaf5eb;border:1px solid #b6d9c0}
+.compareValueHead h3{font-size:clamp(19px,3vw,24px);margin:5px 0 8px;color:#134a34}
+.compareValueHead p{margin:0 0 12px;color:#2b573f;line-height:1.55}
+.valueEyebrow{color:#3f7760;letter-spacing:.095em;font-weight:850;font-size:11px}
+.compareValueCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.valueProduct{padding:14px;border:1px solid #c9e0cb;border-radius:12px;background:#fff;min-width:0}
+.valueProduct>strong{display:block;font-size:14px;color:#25533d}
+.priceBig{display:block;font-size:clamp(20px,3.4vw,28px);font-weight:850;margin:5px 0;color:#15452f}
+.valueProduct small{display:block;font-size:12px;line-height:1.5;color:#597060;overflow-wrap:anywhere}
+.valueProtein{font-weight:750;font-size:14px;margin-top:9px;padding-top:9px;border-top:1px solid #e1eee1;color:#29563b}
+.valueBottom{margin:13px 0 0;font-size:14px;font-weight:750;color:#235640}
+.comparePriceDisclaimer{font-size:12px;line-height:1.5;margin:10px 0 0;color:#5e6b61}
+@media(max-width:560px){.compareValueCards{grid-template-columns:1fr}.compareValuePanel{padding:13px}.comparePriceFields{grid-template-columns:1fr 1fr}.priceBig{font-size:25px}}
+
+/* Veritas 2.5 – Empfehlungskarten und Vergleichspreise */
+.alternatives { margin-top:1rem; }
+.alternatives.cardish { margin-top:1.2rem; border:1px solid #dbe3dc; background:#f8faf7; padding:1rem; border-radius:1.25rem; }
+.alternativeActions,.alternativeCardActions,.altFilters { display:flex; flex-wrap:wrap; gap:.55rem; margin:.8rem 0; }
+.altFilters button { border:1px solid #bccbc1; border-radius:999px; padding:.6rem .9rem; background:#fff; color:#244f43; font-weight:700; cursor:pointer; }
+.altFilters button.active { background:#174d3f; color:#fff; border-color:#174d3f; }
+.altReference { padding:.65rem .8rem; background:#eaf3ec; border-radius:.7rem; line-height:1.5; }
+.alternativeList { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:.9rem; margin-top:.85rem; }
+.alternativeCard { border:1px solid #d8e1d8; padding:1rem; border-radius:1.1rem; background:white; min-width:0; }
+.alternativeCardHead { display:flex; align-items:flex-start; gap:.85rem; overflow-wrap:anywhere; }
+.alternativeCardHead img,.altPlaceholder { width:65px; height:65px; object-fit:contain; background:#f1f6f1; border-radius:.7rem; flex:0 0 65px; }
+.altPlaceholder { display:grid;place-items:center; font-size:1.8rem; }
+.alternativeCardHead strong { display:block; font-size:1.07em; line-height:1.3; }
+.alternativeCardHead small { display:block; color:#586e63; margin-top:.2rem; }
+.altBadges { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.45rem; }
+.altBadge { display:inline-block; background:#ddf3e4; color:#164c38; border-radius:999px; padding:.3rem .5rem; font-size:.78em; font-weight:700; }
+.altNeutral { font-size:.82em; color:#6a716b; }
+.altReasons { padding-left:1.2rem; margin:.7rem 0; line-height:1.5; }
+.altReasons li { margin:.25rem 0; }
+.altPrice { font-weight:700; margin:.8rem 0 .4rem; }
+.altSetPrice,.altSetBasePrice { display:flex; flex-wrap:wrap; align-items:flex-end; gap:.45rem; margin:.65rem 0; }
+.altSetPrice label,.altSetBasePrice label { display:flex; flex-direction:column; gap:.2rem; font-size:.85em; flex:1 1 95px; min-width:0; }
+.altSetPrice input,.altSetBasePrice input { width:100%; box-sizing:border-box; min-height:42px; padding:.45rem; border:1px solid #b5c8bc; border-radius:.6rem; font-size:1em; }
+.altSetPrice button,.altSetBasePrice button { min-height:42px; flex:0 0 auto; }
+.altSafety { font-size:.88em; color:#465c51; margin:.7rem 0; }
+.altSafety.altCritical { color:#9e2d21; font-weight:700; }
+.altPriceReference { margin-top:1.1rem; padding:.85rem; background:#edf4ed; border-radius:.85rem; }
+.altPriceReference small,.altMethod { display:block; color:#53695b; font-size:.84em; line-height:1.5; }
+.altEmpty { padding:.9rem; border-radius:.85rem; background:#f3f5f1; }
+.altEmpty p { margin:.35rem 0 0; }
+.altMessage { padding:.8rem; }
+@media(max-width:540px){.alternatives.cardish{padding:.7rem}.altSetPrice button{width:100%}.alternativeActions button{flex:1 1 140px}.alternativeCard{padding:.8rem}.altFilters{gap:.35rem}.altFilters button{padding:.45rem .6rem;font-size:.88em}}
+
+/* Veritas 2.6 – Vorsorge und Ölvergleich */
+.precautionCard{border-left:4px solid #4d9773}.precautionLead{background:#ebf5ed;color:#194b37;border-radius:12px;padding:13px 15px;margin-bottom:13px}.precautionFinding{padding:12px 0;border-bottom:1px solid #e6ece6}.precautionFinding p{margin:5px 0 0;line-height:1.48}.precautionCaution{border-left:3px solid #c88d38;padding-left:11px}.precautionUnknown{margin-top:14px;padding:12px;border:1px solid #dfe8de;border-radius:12px}.precautionUnknown summary{cursor:pointer;font-weight:600}.precautionUnknown li{margin-top:7px}.comparePrecaution{border:1px solid #cadfd0;background:#f3f8f2;border-radius:16px;padding:16px;margin-top:16px}.comparePrecaution strong{color:#1b513a}.comparePrecaution li{margin-top:8px}.precautionPair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.precautionPair>div{padding:12px;border:1px solid #d9e7dc;border-radius:12px;background:#fff}.oilSelect{max-width:100%;width:100%;padding:13px;border:1px solid #cbd9d0;border-radius:11px;background:#fff;color:#17362d;font:inherit}.checkchoice small{display:block;color:#63786b;font-weight:400;margin-top:4px;line-height:1.4}@media(max-width:540px){.precautionPair{grid-template-columns:1fr}.comparePrecaution{padding:12px}}

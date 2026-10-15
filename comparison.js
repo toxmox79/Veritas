@@ -8,6 +8,7 @@ const compareName=p=>p.product_name_de||p.product_name||'Unbekanntes Produkt';
 function compareGroup(p){
  const name=String(compareName(p)).toLowerCase();const category=String(p.categories||'').toLowerCase()+' '+(p.categories_tags||[]).join(' ').toLowerCase();
  const patterns=[
+ ['quark',/quark|quarkcreme|speisequark|magerquark|quarkdessert/],
  ['käse',/käse|kaese|gouda|emmental|cheddar|mozzarella|cheese|pizzabelag|schmelzscheiben?/],
  ['joghurt',/joghurt|yogurt|yoghurt|skyr/],
  ['schokolade',/schokolade|schoko|chocolate|kakaohaltige fettglasur|praline/],
@@ -18,7 +19,8 @@ function compareGroup(p){
  ['wasser',/mineralwasser|quellwasser|tafelwasser|water/],
  ['fruchtsaft',/fruchtsaft|direktsaft|fruchtnektar|fruchtsaftgetränk|orange juice|apple juice/],
  ['limonade',/limonade|cola|brause|softdrink|eistee|ice tea|energy drink/],
- ['öl/fett',/olivenöl|sonnenblumenöl|rapsöl|pflanzenöl|speiseöl|margarine|butter/],
+ ['speiseöl',/olivenöl|sonnenblumenöl|rapsöl|leinöl|leinsamenöl|walnussöl|sesamöl|kokosöl|palmöl|erdnussöl|sojaöl|maiskeimöl|pflanzenöl|speiseöl|bratöl|ölmischung|mischöl/],
+ ['öl/fett',/margarine|butter|ghee|butterschmalz/],
  ['aufstrich',/brotaufstrich|nuss.nougat|erdnussbutter|marmelade|konfitüre|haselnussaufstrich|nutella|nudossi/],
  ['kekse/gebäck',/keks|biskuit|cookie|waffel|rührkuchen|muffin/],
  ['salzige snacks',/chips|flips|salzstangen|knabber/],
@@ -29,7 +31,7 @@ function compareGroup(p){
  for(const [key,re] of patterns)if(re.test(category))return key;
  return null;
 }
-function compareValues(p){const n=p.nutriments||{};const a=assessAuthenticity(p);return {p,name:compareName(p),group:compareGroup(p),auth:a.level,authHeading:a.heading,nova:[1,2,3,4].includes(Number(p.nova_group))?Number(p.nova_group):null,nutri:/^[a-e]$/.test(String(p.nutriscore_grade||'').toLowerCase())?String(p.nutriscore_grade).toUpperCase():null,ingredients:String(p.ingredients_text_de||p.ingredients_text||'').trim(),additives:additiveIds(p),sugar:compareNum(n,'sugars'),salt:compareNum(n,'salt'),carbs:compareNum(n,'carbohydrates'),fatSat:compareNum(n,'saturated-fat'),fiber:compareNum(n,'fiber'),energy:compareNum(n,'energy-kcal')};}
+function compareValues(p){const n=p.nutriments||{};const a=assessAuthenticity(p),ingredient=ingredientStatus(p);return {p,name:compareName(p),group:compareGroup(p),auth:a.level,authHeading:a.heading,ingredient,nova:[1,2,3,4].includes(Number(p.nova_group))?Number(p.nova_group):null,nutri:/^[a-e]$/.test(String(p.nutriscore_grade||'').toLowerCase())?String(p.nutriscore_grade).toUpperCase():null,ingredients:ingredient.text,additives:additiveIds(p),sugar:compareNum(n,'sugars'),salt:compareNum(n,'salt'),carbs:compareNum(n,'carbohydrates'),fatSat:compareNum(n,'saturated-fat'),fiber:compareNum(n,'fiber'),energy:compareNum(n,'energy-kcal')};}
 
 /* Zutatenanteile werden aus ZUTATEN-Texten gelesen, nicht geschätzt. */
 function ingredientLabel(raw){
@@ -53,6 +55,7 @@ function ingredientPercentages(p){
 }
 function headIngredient(p){const text=String(p.ingredients_text_de||p.ingredients_text||'');return text?text.split(',')[0].trim():null}
 function compareRecipe(a,b){
+ if(a.group==='speiseöl'&&b.group==='speiseöl'){const o=oilCompareAssessment(a.p,b.p);return {winner:null,label:'Öle: Auswahl nach Fettsäuren, Herstellung und Verwendung',detail:o?o.lines.join(' '):'Auswahl anhand von Art und Fettprofil; ohne Daten keine Pauschalwertung.',quantA:{},quantB:{},firstA:headIngredient(a.p),firstB:headIngredient(b.p),common:[]};}
  const pa=ingredientPercentages(a.p),pb=ingredientPercentages(b.p);const common=Object.keys(pa).filter(k=>pb[k]!==undefined);
  const ranked=common.filter(k=>Math.abs(pa[k]-pb[k])>=1).sort((x,y)=>Math.abs(pb[y]-pa[y])-Math.abs(pb[x]-pa[x]));
  const same=common.filter(k=>Math.abs(pa[k]-pb[k])<1);
@@ -62,8 +65,27 @@ function compareRecipe(a,b){
  if(same.length)details.push('Weitere gleich bezifferte Zutaten: '+same.join(', ')+'.');
  const ingA=headIngredient(a.p),ingB=headIngredient(b.p);
  if(ingA&&ingB)details.push('Erste Zutat: A – '+ingA+'; B – '+ingB+'. Zutaten sind nach Gewichtsanteil geordnet.');
- if(!a.ingredients||!b.ingredients)details.push('Mindestens eine vollständige Zutatenliste fehlt.');
- // Weiterverarbeitung kann man zusätzlich beurteilen, die Menge der Kernzutat bleibt separat.
+ // Wenn das Lebensmittel rechtmäßig ohne Zutatenverzeichnis angeboten werden kann,
+ // ist das kein Rezeptur-Nachteil. Der Vergleich zeigt trotzdem seine Evidenzgrenzen.
+ const simpleA=a.ingredient.kind==='exempt',simpleB=b.ingredient.kind==='exempt';
+ const indicators= p=>{const t=String(p.ingredients_text_de||p.ingredients_text||'').toLowerCase();
+  return [['Süßungsmittel',/süßungsmittel|acesulfam|sucralose|aspartam|stevia|cyclamat/],
+   ['Aroma',/\baroma\b|\baromen\b|vanille-aroma|vanillearoma/],
+   ['Verdickungsmittel',/verdickungsmittel|guarkernmehl|xanthan|carrageen/],
+   ['Stärke',/\bstärke\b|\bstaerke\b|modifizierte stärke/]]
+   .filter(([,re])=>re.test(t)).map(([label])=>label)};
+ const additionsA=indicators(a.p),additionsB=indicators(b.p);
+ if(!winner&&a.group&&a.group===b.group){
+  if(simpleA&&additionsB.length>=2){winner='A';label='Naturnähere Produktart: A (begründete Tendenz)';details.push('A ist als klassischer Speisequark dokumentiert. B enthält laut Zutatenliste '+additionsB.join(', ')+'. Deshalb spricht die belegte Rezeptur stärker für A; die vollständige Herstellung von A ist nicht einzeln dokumentiert.');}
+  else if(simpleB&&additionsA.length>=2){winner='B';label='Naturnähere Produktart: B (begründete Tendenz)';details.push('B ist als klassischer Speisequark dokumentiert. A enthält laut Zutatenliste '+additionsA.join(', ')+'. Deshalb spricht die belegte Rezeptur stärker für B; die vollständige Herstellung von B ist nicht einzeln dokumentiert.');}
+ }
+ if(!a.ingredients||!b.ingredients){
+   for(const [letter,info] of [['A',a.ingredient],['B',b.ingredient]]){
+    if(info.kind==='exempt')details.push('Produkt '+letter+': Bei dieser Produktart ist ein Zutatenverzeichnis rechtlich unter Bedingungen entbehrlich; keine erfundene Liste verwenden.');
+    else if(info.kind==='possibly-exempt')details.push('Produkt '+letter+': Gesetzliche Ausnahme möglich, jedoch nicht bestätigt.');
+    else if(info.kind==='missing')details.push('Produkt '+letter+': Der Eintrag enthält keine Zutatenliste.');
+   }
+ }
  return {winner,label,detail:details.join(' '),quantA:pa,quantB:pb,firstA:ingA,firstB:ingB,common};
 }
 function compareQuickFacts(a,b,recipe){
@@ -76,8 +98,9 @@ function compareQuickFacts(a,b,recipe){
  }
  return facts;
 }
-function fatSources(p){const raw=String(p.ingredients_text_de||p.ingredients_text||'').toLowerCase();const map=[['Palmöl',/palmöl/],['Sonnenblumenöl',/sonnenblumenöl|öl \(sonnenblume\)/],['Salfett',/salfett|fett \(sal\)/],['Kokosfett',/kokosfett|kokosöl/],['Rapsöl',/rapsöl/],['Olivenöl',/olivenöl/],['Butter',/\bbutter\b/],['Kakaobutter',/kakaobutter/]];const found=map.filter(([label,rx])=>rx.test(raw)).map(([label])=>label);return found.length?found.join(', '):'Keine Fettart eindeutig erkannt';}
+function fatSources(p){const oil=typeof oilDeclaration==='function'?oilDeclaration(p):null;if(oil)return oil.oil.label+' (aus Produktbezeichnung, nicht laborbestätigt)';const raw=String(p.ingredients_text_de||p.ingredients_text||'').toLowerCase();const map=[['Palmöl',/palmöl/],['Sonnenblumenöl',/sonnenblumenöl|öl \(sonnenblume\)/],['Salfett',/salfett|fett \(sal\)/],['Kokosfett',/kokosfett|kokosöl/],['Rapsöl',/rapsöl/],['Olivenöl',/olivenöl/],['Butter',/\bbutter\b/],['Kakaobutter',/kakaobutter/]];const found=map.filter(([label,rx])=>rx.test(raw)).map(([label])=>label);return found.length?found.join(', '):'Keine Fettart eindeutig erkannt';}
 function compareNutrients(a,b,sameGroup){
+ if(a.group==='speiseöl'&&b.group==='speiseöl'){const r=oilCompareAssessment(a.p,b.p);return {winner:r?.preferred||null,label:r?.label||'Fettprofil nur teilweise bekannt',detail:r?r.lines.join(' '):'Öldaten nicht vergleichbar.'};}
  if(!sameGroup)return {winner:null,label:'Nur eingeschränkt vergleichbar',detail:'Keine sicher gemeinsame Produktgruppe ermittelt. Werte nebeneinander lesen, aber keinen Gesamtsieger ableiten.'};
  const pairs=[['Zucker','sugar',0.5,'low'],['gesättigte Fettsäuren','fatSat',0.5,'low'],['Salz','salt',0.15,'low'],['Ballaststoffe','fiber',1,'high'],['Energie','energy',20,'low'],['Gesamtfett','fat',2,'low'],['Kohlenhydrate','carbs',2,'low']];
  const prosA=[],prosB=[],equal=[],missing=[];
@@ -109,6 +132,65 @@ function compareHealth(p){
  return {alerts,issues};
 }
 
+/* Preisvergleich: keine fiktiven Livepreise. Lokale Ladenpreise haben Vorrang. */
+const VERITAS_PRICE_PREFIX='veritas-price-v1:';
+function compareMoney(n){return new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n)}
+function parseQuantity(p){const match=String(p.quantity||'').replace(/,/g,'.').match(/(\d+(?:\.\d+)?)\s*(kg|g|ml|l)\b/i);if(!match)return null;const unit=match[2].toLowerCase();return {amount:Number(match[1])*(unit==='kg'||unit==='l'?1000:1),unit:unit==='kg'?'g':unit==='l'?'ml':unit};}
+function localPrice(code){try{let data=JSON.parse(localStorage.getItem(VERITAS_PRICE_PREFIX+code)||'null');return data&&typeof data==='object'?data:null}catch{return null}}
+function priceData(slot){const info=compareSlots[slot];if(!info)return null;let reference=REFERENCE_PRICES[info.code]||null, own=localPrice(info.code),quantity=parseQuantity(info.p);let base=own||reference;
+ const price=base&&base.price!==null&&Number.isFinite(Number(base.price))&&Number(base.price)>0?Number(base.price):null;
+ const amount=base&&base.amount!==null&&Number.isFinite(Number(base.amount))&&Number(base.amount)>0?Number(base.amount):quantity?.amount??null;
+ const unit=base?.unit||quantity?.unit||'g';const source=own?'own':reference?'reference':'unknown';
+ return {price,amount,unit,source,reference,own,per100:price!==null&&amount!==null?price/amount*100:null,protein10:null};
+}
+function updatePriceInputs(slot){const data=priceData(slot);if(!data)return;
+ $('comparePrice'+slot).value=data.price===null?'':String(data.price);
+ $('compareAmount'+slot).value=data.amount===null?'':String(data.amount);
+ const meta=$('comparePriceMeta'+slot);
+ if(data.source==='own')meta.textContent='Eigener Preis · lokal gespeichert. Bitte bei Änderungen aktualisieren.';
+ else if(data.source==='reference')meta.textContent='Unverbindlicher, zuletzt gemeldeter Vergleichspreis ('+data.reference.shop+', abgerufen '+data.reference.seen+'). Kein Livepreis. Überschreibbar.';
+ else meta.textContent='Keine Preisdaten: Aktuellen Ladenpreis eingeben.';
+}
+function savePriceInputs(slot){const info=compareSlots[slot];if(!info)return;
+ const priceRaw=$('comparePrice'+slot).value.trim(), amountRaw=$('compareAmount'+slot).value.trim();
+ const price=priceRaw!==''?Number(priceRaw):null,amount=amountRaw!==''?Number(amountRaw):null;
+ if((price!==null&&(!Number.isFinite(price)||price<=0))||(amount!==null&&(!Number.isFinite(amount)||amount<=0))){compareStatus('Preis und Packungsgröße müssen positiv sein.',true);return;}
+ const original=parseQuantity(info.p); const reference=REFERENCE_PRICES[info.code]||null;
+ const unit=original?.unit||reference?.unit||'g';
+ try{localStorage.setItem(VERITAS_PRICE_PREFIX+info.code,JSON.stringify({price,amount,unit,updated:new Date().toISOString().slice(0,10)}))}catch{compareStatus('Preis konnte auf diesem Gerät nicht gespeichert werden.',true);return}
+ updatePriceInputs(slot);renderComparison();compareStatus('Eigenen Ladenpreis für Produkt '+slot+' gespeichert.');
+}
+function compareEconomics(a,b,recipe,sameGroup){
+ const pA=priceData('A'),pB=priceData('B');if(!pA||!pB)return null;
+ if(pA.per100===null||pB.per100===null)return {complete:false,label:'Für beide Produkte Preise ergänzen',details:'Trage beide Packungspreise und Packungsgrößen ein. Erst dann ist eine seriöse Preis-Leistungs-Bewertung möglich.',pA,pB};
+ if(pA.unit!==pB.unit)return {complete:false,label:'Preisvergleich nicht direkt möglich',details:'Die Packungen verwenden unterschiedliche Einheiten (g und ml). Ohne Dichteangaben werden sie nicht gleichgesetzt.',pA,pB};
+ const proteinA=compareNum(a.p.nutriments,'proteins'), proteinB=compareNum(b.p.nutriments,'proteins');
+ pA.protein10=proteinA>0?pA.per100*10/proteinA:null;pB.protein10=proteinB>0?pB.per100*10/proteinB:null;
+ const cheaper=pA.per100<pB.per100?'A':pA.per100>pB.per100?'B':null;
+ const higher=pA.per100>pB.per100?'A':pA.per100<pB.per100?'B':null;
+ const savingPct=Math.abs(pA.per100-pB.per100)/Math.max(pA.per100,pB.per100)*100;
+ const gapPct=Math.abs(pA.per100-pB.per100)/Math.min(pA.per100,pB.per100)*100;
+ const practicallyEqual=gapPct<5;
+ let label,details;
+ if(!sameGroup){label='Preisvergleich ohne Qualitätssieger';details='Die Lebensmittelgruppen sind nicht eindeutig gleich. Ein günstigerer Kilopreis bedeutet deshalb noch keine bessere Wahl.';}
+ else if(practicallyEqual){label='Ähnlicher Kilopreis';details='Die Preisunterschiede liegen unter fünf Prozent. Die Rezeptur und persönliche Ernährungskriterien entscheiden.';}
+ else if(recipe.winner===cheaper){label='Besseres Preis-Rezeptur-Verhältnis: Produkt '+cheaper;details='Produkt '+cheaper+' ist sowohl günstiger pro '+(pA.unit==='ml'?'Liter':'Kilogramm')+' als auch bei der belegbaren Rezeptur im Vorteil. Das bedeutet nicht automatisch gesünder für jede Person.';}
+ else if(recipe.winner&&recipe.winner!==cheaper){label='Abwägung: Preis gegen Rezeptur';details='Produkt '+cheaper+' kostet weniger pro '+(pA.unit==='ml'?'Liter':'Kilogramm')+', Produkt '+recipe.winner+' hat den Rezepturvorteil. Ein pauschaler Sieger wäre irreführend.';}
+ else {label='Preisvorteil: Produkt '+cheaper;details='Produkt '+cheaper+' ist günstiger. Für einen Qualitätsgesamtsieg reichen die belegbaren Rezepturunterschiede nicht aus.';}
+ return {complete:true,pA,pB,cheaper,higher,savingPct,gapPct,label,details};
+}
+function priceComparisonHTML(economics){const e=html;
+ const oilPair=compareSlots.A&&compareSlots.B&&compareGroup(compareSlots.A.p)==='speiseöl'&&compareGroup(compareSlots.B.p)==='speiseöl';
+ if(!economics)return '';
+ const pA=economics.pA,pB=economics.pB;
+ const amountUnit=pA.unit===pB.unit?(pA.unit==='ml'?'Liter':'Kilogramm'):'Einheit';
+ const priceText=(v)=>v===null?'Preis fehlt':compareMoney(v);
+ const sourceTag=(p)=>p.source==='reference'?'Richtpreis (nicht live)':p.source==='own'?'Dein Ladenpreis':'Noch kein Preis';
+ const col=(title,p)=>`<div class="valueProduct"><strong>${title}</strong><span class="priceBig">${priceText(p.per100===null?null:p.per100*10)} ${p.per100===null?'':'/ '+(p.unit==='ml'?'l':'kg')}</span><small>${p.price===null?'Packungspreis fehlt':compareMoney(p.price)+' je '+compareFormat(p.amount,p.unit)} · ${sourceTag(p)}</small>${oilPair?'':`<div class="valueProtein">${p.protein10===null?'Eiweißpreis nicht berechenbar':compareMoney(p.protein10)+' je 10 g Eiweiß'}</div>`}</div>`;
+ const intro=economics.complete?`<h3>${e(economics.label)}</h3><p>${e(economics.details)}</p>`:`<h3>${e(economics.label)}</h3><p>${e(economics.details)}</p>`;
+ const benchmark=[pA,pB].some(p=>p.source==='reference');
+ return `<section class="compareValuePanel"><div class="compareValueHead"><div><span class="valueEyebrow">PREIS · INHALT · GEGENWERT</span>${intro}</div></div><div class="compareValueCards">${col('Produkt A',pA)}${col('Produkt B',pB)}</div>${economics.complete&&economics.cheaper?`<p class="valueBottom">Das günstigere Produkt ${e(economics.cheaper)} kostet ${new Intl.NumberFormat('de-DE',{maximumFractionDigits:0}).format(economics.savingPct)} % weniger pro ${e(amountUnit)} als das teurere.</p>`:''}${benchmark?'<p class="comparePriceDisclaimer">⚠ Mindestens ein Preis ist ein zuletzt gemeldeter Referenzwert – kein aktuelles Ladenangebot. Bitte vor einer Kaufentscheidung mit dem Regalpreis ersetzen.</p>':''}${oilPair?'':`<p class="comparePriceDisclaimer">Die Kosten je 10 g Eiweiß vergleichen nur Menge und Preis, nicht die Verdaulichkeit oder Qualität einzelner Proteine. Geschmack, Portionsgröße und gesundheitliche Warnungen bleiben eigene Kriterien.</p>`}</section>`;
+}
 function renderComparison(){
  const container=$('compareResults');if(!compareSlots.A||!compareSlots.B){container.hidden=true;return}
  container.hidden=false;
@@ -116,10 +198,12 @@ function renderComparison(){
  if(compareSlots.A.code===compareSlots.B.code){container.innerHTML='<div class="compareOverall neutral"><h3>Dasselbe Produkt</h3><p>Bitte eine andere EAN für Produkt B verwenden.</p></div>';return}
  const sameGroup=!!(a.group&&b.group&&a.group===b.group);
  const recipe=compareRecipe(a,b),nutrients=compareNutrients(a,b,sameGroup),personalA=compareHealth(a.p),personalB=compareHealth(b.p);
+ const economics=compareEconomics(a,b,recipe,sameGroup);
  const recallA=PRODUCT_RECALLS[compareSlots.A.code],recallB=PRODUCT_RECALLS[compareSlots.B.code];
  let head='Vergleich mit Vor- und Nachteilen',body='Die Rezeptur kann bei einem Produkt besser zu deinem Wunsch nach naturnahen Zutaten passen, während Nährwerte für das andere sprechen.';
  if(!sameGroup){head='Produkte nur begrenzt vergleichbar';body='Die Produktgruppen sind nicht identisch oder nicht eindeutig erkannt. Daher gibt es keine pauschale Bewertung.'}
- else if(recipe.winner){head='Rezepturvorteil: Produkt '+recipe.winner;body='Die verglichene namensgebende Zutat ist in Produkt '+recipe.winner+' in höherem deklariertem Anteil enthalten. Das bedeutet nicht automatisch, dass dieses Produkt insgesamt gesünder ist.'}
+ else if(!precaution.preferNatural&&nutrients.winner){head='Nährwerttendenz: Produkt '+nutrients.winner;body='Der Vorteil bezieht sich auf die verfügbaren Nährwertdaten – nicht auf Echtheit oder Herstellungsweise.'}
+ else if(recipe.winner){head='Rezepturvorteil: Produkt '+recipe.winner;body=recipe.label.startsWith('Naturnähere')?'Die Art des Grundprodukts und die ausdrücklich genannten Rezepturzusätze sprechen für eine naturnähere Wahl. Ohne exakte Zutatenliste des einfachen Produkts ist das eine Tendenz, kein Laborbeweis.':'Die verglichene namensgebende Zutat ist in Produkt '+recipe.winner+' in höherem deklariertem Anteil enthalten. Das bedeutet nicht automatisch, dass dieses Produkt insgesamt gesünder ist.'}
  else if(nutrients.winner){head='Nährwerttendenz: Produkt '+nutrients.winner;body='Der Vorteil bezieht sich auf die verfügbaren Nährwertdaten – nicht auf Echtheit oder Herstellungsweise.'}
  if(recallA||recallB){body+=' ACHTUNG: Für mindestens eines der Produkte ist ein chargenabhängiger Produktrückruf bekannt. Ohne MHD-Abgleich keine Verzehrempfehlung!'}
  const fmt=(v,u='g')=>compareFormat(v,u),e=html;
@@ -127,7 +211,7 @@ function renderComparison(){
  const row=(label,va,vb,preferred=null)=>`<tr><th scope="row">${e(label)}</th><td>${highlight(String(va),preferred==='A')}</td><td>${highlight(String(vb),preferred==='B')}</td></tr>`;
  const ingredientsRow=(label,av,bv,unit='g',direction=null,threshold=0)=>{let pref=null;if(sameGroup&&av!==null&&bv!==null&&direction&&Math.abs(av-bv)>threshold)pref=direction==='low'?(av<bv?'A':'B'):(av>bv?'A':'B');return row(label,fmt(av,unit),fmt(bv,unit),pref)};
  const quantityRows=Array.from(new Set([...Object.keys(recipe.quantA),...Object.keys(recipe.quantB)])).map(k=>ingredientsRow('Anteil '+k,recipe.quantA[k]??null,recipe.quantB[k]??null,'%',recipe.quantA[k]!==undefined&&recipe.quantB[k]!==undefined?'high':null,0.5)).join('');
- const first=(r)=>r||'Keine Zutatenliste';
+ const first=(r,info)=>r||((info.kind==='exempt'||info.kind==='possibly-exempt')?'Nicht einzeln aufgelistet (mögliche gesetzliche Ausnahme)':'Nicht erfasst');
  const sA=compareSlots.A.p._veritasSources||[],sB=compareSlots.B.p._veritasSources||[];
  const sourceLinks=(items)=>items.length?items.map(x=>x.url?`<a href="${e(x.url)}" rel="noopener" target="_blank">${e(x.name)} (${e(x.kind||'Quelle')}) ↗</a>`:e(x.name+' ('+(x.kind||'Quelle')+')')).join(' · '):'Keine Quelle belegt';
  const coverage=(p)=>{const n=p.nutriments||{};const fields=['energy-kcal_100g','fat_100g','saturated-fat_100g','carbohydrates_100g','sugars_100g','proteins_100g','salt_100g'];return fields.filter(key=>compareNum(n,key.replace('_100g',''))!==null).length};
@@ -136,11 +220,13 @@ function renderComparison(){
  const quick=compareQuickFacts(a,b,recipe);
  container.innerHTML=`
  ${recallA?recallHTML(compareSlots.A.code):''}${recallB?recallHTML(compareSlots.B.code):''}
+ ${priceComparisonHTML(economics)}
+ ${precautionCompareHtml(a.p,b.p)}
  <div class="compareOverall ${recipe.winner?'':'neutral'}"><h3>${e(head)}</h3><p>${e(body)}</p></div>
  <div class="compareHighlights"><h3>Unterschiede auf einen Blick</h3>${quick.length?`<ul>${quick.map(x=>`<li>${e(x)}</li>`).join('')}</ul>`:'<p>Für einen Zahlenvergleich fehlen ausreichende Angaben.</p>'}</div>
  <div class="compareVerdicts"><article class="compareVerdict"><h4>🌰 Hauptzutaten und Rezeptur</h4><div class="compareWinner">${e(recipe.label)}</div><p>${e(recipe.detail)}</p></article><article class="compareVerdict"><h4>♡ Nährwertprofil</h4><div class="compareWinner">${e(nutrients.label)}</div><p>${e(nutrients.detail)}</p></article></div>
  <div class="compareData"><h3>Produktvergleich je 100 g</h3><div class="compareScroll"><table class="compareTable"><thead><tr><th>Eigenschaft</th><th>A: ${e(a.name)}</th><th>B: ${e(b.name)}</th></tr></thead><tbody>
- ${row('Erste Zutat',first(recipe.firstA),first(recipe.firstB))}${quantityRows}${row('Fettarten laut Zutatenliste',fatSources(a.p),fatSources(b.p))}
+ ${row('Erste Zutat',first(recipe.firstA,a.ingredient),first(recipe.firstB,b.ingredient))}${quantityRows}${row('Fettarten laut Zutatenliste',fatSources(a.p),fatSources(b.p))}
  ${ingredientsRow('Zucker',a.sugar,b.sugar,'g','low',0.5)}
  ${ingredientsRow('Kohlenhydrate',a.carbs,b.carbs,'g',null)}
  ${ingredientsRow('Gesamtfett',compareNum(a.p.nutriments,'fat'),compareNum(b.p.nutriments,'fat'),'g',null)}
@@ -150,17 +236,19 @@ function renderComparison(){
  ${ingredientsRow('Ballaststoffe',a.fiber,b.fiber,'g',null)}
  ${ingredientsRow('Salz',a.salt,b.salt,'g','low',0.15)}
  ${row('Nutri-Score',a.nutri||'Nicht bekannt',b.nutri||'Nicht bekannt')}
+ ${economics?.complete?row('Preis je kg / l',compareMoney(economics.pA.per100*10),compareMoney(economics.pB.per100*10),economics.cheaper):''}
+ ${economics?.complete?row('Preis für 10 g Eiweiß',economics.pA.protein10===null?'Keine Angabe':compareMoney(economics.pA.protein10),economics.pB.protein10===null?'Keine Angabe':compareMoney(economics.pB.protein10),economics.pA.protein10!==null&&economics.pB.protein10!==null?(economics.pA.protein10<economics.pB.protein10?'A':'B'):null):''}
  ${row('NOVA',a.nova===null?'Nicht bekannt':a.nova,b.nova===null?'Nicht bekannt':b.nova)}
  ${row('Nachahmungsmerkmale',a.authHeading,b.authHeading)}
- ${row('Ausgeschriebene E-Nummern',a.ingredients?a.additives.size+' explizit erfasst':'Keine ausreichenden Daten',b.ingredients?b.additives.size+' explizit erfasst':'Keine ausreichenden Daten')}
+ ${row('Deklarierte Zusatzstoffe / E-Nummern',a.ingredients?a.additives.size+' erkannt' :'Nicht bezifferbar (kein Zutatenverzeichnis)',b.ingredients?b.additives.size+' erkannt' :'Nicht bezifferbar (kein Zutatenverzeichnis)')}
  </tbody></table></div></div>
- <div class="compareIngredientLists"><article><h3>Zutaten A</h3><p>${e(a.ingredients||'Zutatenliste fehlt')}</p></article><article><h3>Zutaten B</h3><p>${e(b.ingredients||'Zutatenliste fehlt')}</p></article></div>
- <div class="compareProvenance"><h3>Quellen und Datenlücken</h3><p><strong>Produkt A:</strong> ${sourceLinks(sA)}. ${coverage(a.p)}/7 übliche Nährwertangaben erfasst.${!a.ingredients?' Zutaten fehlen.':''}</p><p><strong>Produkt B:</strong> ${sourceLinks(sB)}. ${coverage(b.p)}/7 übliche Nährwertangaben erfasst.${!b.ingredients?' Zutaten fehlen.':''}</p><p>Bei einzelnen EANs ergänzte Hersteller- oder Händlerdaten wurden zuletzt am 15.10.2026 geprüft. Sie sind nicht automatisch aktuell und können von neueren Rezepturen abweichen. Es gibt keinen vollständigen Live-Rückrufcheck.</p></div>
+ <div class="compareIngredientLists"><article><h3>Zutaten A</h3><p>${e(a.ingredients||a.ingredient.short)}</p>${!a.ingredients?`<p class="muted">${e(a.ingredient.description)}</p>${a.ingredient.process?`<p class="muted">${e(a.ingredient.process)}</p>`:''}`:''}</article><article><h3>Zutaten B</h3><p>${e(b.ingredients||b.ingredient.short)}</p>${!b.ingredients?`<p class="muted">${e(b.ingredient.description)}</p>${b.ingredient.process?`<p class="muted">${e(b.ingredient.process)}</p>`:''}`:''}</article></div>
+ <div class="compareProvenance"><h3>Quellen und Datenlücken</h3><p><strong>Produkt A:</strong> ${sourceLinks(sA)}. ${coverage(a.p)}/7 übliche Nährwertangaben erfasst.${!a.ingredients?' '+e(a.ingredient.short)+'.':''}</p><p><strong>Produkt B:</strong> ${sourceLinks(sB)}. ${coverage(b.p)}/7 übliche Nährwertangaben erfasst.${!b.ingredients?' '+e(b.ingredient.short)+'.':''}</p><p>Bei einzelnen EANs ergänzte Hersteller- oder Händlerdaten wurden zuletzt am 15.10.2026 geprüft. Sie sind nicht automatisch aktuell und können von neueren Rezepturen abweichen. Es gibt keinen vollständigen Live-Rückrufcheck.</p></div>
  ${personal?`<div class="compareSafety"><h3>⚠ Dein persönliches Prüfprofil</h3>${htmlRisks(personalA,'Produkt A')}${htmlRisks(personalB,'Produkt B')}<p>Keine medizinische Freigabe. Verpackung und individuelle Ernährungsvorgaben prüfen.</p></div>`:''}
- <p class="compareNote">${sameGroup?'Beide Produkte: '+e(a.group)+'.':'Produktgruppen nicht eindeutig gleich.'} Fehlende Werte werden nicht als null Gramm behandelt. Ein höherer Haselnussanteil ist ein Rezepturvorteil, kein Beleg für gesundheitliche Unbedenklichkeit. Die Ampel ist keine amtliche Qualitätsprüfung.</p>`;
+ <p class="compareNote">${sameGroup?'Beide Produkte: '+e(a.group)+'.':'Produktgruppen nicht eindeutig gleich.'} Fehlende Werte werden nicht als null Gramm behandelt. Eine gesetzliche Ausnahme vom Zutatenverzeichnis ist kein negatives Qualitätsmerkmal. Rezepturvorteile sind kein Beleg für gesundheitliche Unbedenklichkeit. Die Ampel ist keine amtliche Qualitätsprüfung.</p>`;
 }
 function previewComparisonSlot(slot){const data=compareSlots[slot];if(!data)return;const p=data.p,el=$('comparePreview'+slot);el.replaceChildren();const pic=p.image_front_small_url||p.image_front_url;if(pic){try{const u=new URL(pic);if(u.protocol==='https:'){const img=new Image();img.src=u.href;img.alt='Produktbild';img.referrerPolicy='no-referrer';el.append(img)}}catch{}}
- const content=document.createElement('div');const title=document.createElement('strong');title.textContent=compareName(p);const caption=document.createElement('small');caption.textContent=[p.brands,'EAN '+data.code].filter(Boolean).join(' · ');content.append(title,caption);el.append(content);$('compareEan'+slot).value=data.code;}
+ const content=document.createElement('div');const title=document.createElement('strong');title.textContent=compareName(p);const caption=document.createElement('small');caption.textContent=[p.brands,'EAN '+data.code].filter(Boolean).join(' · ');content.append(title,caption);el.append(content);$('compareEan'+slot).value=data.code;updatePriceInputs(slot);}
 function openComparison(){renderComparison();$('compareSection').hidden=false;$('compareSection').scrollIntoView({behavior:'smooth',block:'start'})}
 function compareStatus(msg,bad=false){$('compareStatus').textContent=msg;$('compareStatus').classList.toggle('error',bad)}
 
@@ -170,7 +258,7 @@ async function loadComparisonSlot(slot,raw){
  openComparison();compareStatus('Produkt '+slot+' wird geladen …');const btn=$('compareLoad'+slot);btn.disabled=true;
  try{
   const p=state.product&&state.productCode===code?mergeProductEvidence(code,state.product):await fetchProductDetailed(code);
-  compareSlots[slot]={code,p};previewComparisonSlot(slot);renderComparison();compareStatus(compareSlots.A&&compareSlots.B?'Vergleich mit Quellen und Zutatenanteilen erstellt.':'Produkt '+slot+' geladen. Bitte zweites Produkt auswählen.');
+  compareSlots[slot]={code,p};if(typeof altContexts!=='undefined'){altContexts.compare=null;altRenderContext('compare')}previewComparisonSlot(slot);renderComparison();compareStatus(compareSlots.A&&compareSlots.B?'Vergleich mit Zutatenanteilen und Preis-Leistung erstellt.':'Produkt '+slot+' geladen. Bitte zweites Produkt auswählen.');
   if(compareSlots.A&&compareSlots.B)$('compareResults').scrollIntoView({behavior:'smooth',block:'nearest'});
  }catch(err){
   // Leere Datensätze können über eine transkribierte Zutaten-/Nährwerttabelle ergänzt werden.
@@ -202,4 +290,5 @@ for(const slot of ['A','B']){
  $('compareForm'+slot).addEventListener('submit',e=>{e.preventDefault();loadComparisonSlot(slot,$('compareEan'+slot).value)});
  $('compareScan'+slot).addEventListener('click',()=>{openComparison();state.scanTarget=slot;startScanner()});
  $('compareEdit'+slot).addEventListener('click',()=>showCompareEditor(slot));
+ for(const id of ['comparePrice','compareAmount'])$(''+id+slot).addEventListener('change',()=>savePriceInputs(slot));
 }

@@ -1,7 +1,7 @@
 {
   "name": "Veritas – Lebensmittel verstehen",
   "short_name": "Veritas",
-  "description": "Barcodes scannen und Zutaten, E-Nummern und Verarbeitungsgrad verstehen",
+  "description": "Lebensmittel vergleichen, natürliche Alternativen und vorsorgeorientierte Bewertung von Speiseölen",
   "lang": "de",
   "start_url": "./",
   "scope": "./",
