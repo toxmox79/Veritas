@@ -50,3 +50,14 @@ In den Einstellungen lassen sich freiwillig mehrere Krankheiten/Ernährungstheme
 - Touch-, Maus- und Tastaturbedienung mit nativen `details`-Elementen, auch bei vergrößerter Schrift.
 - Allgemeine Datenschutzhinweise im Footer sind ebenfalls hinter **?** zusammengefasst.
 - Offline-Cache `veritas-v10`; bisherige Profileinstellungen bleiben unverändert.
+
+
+## Veritas v2.0 – Vergleich zweier Produkte
+
+- Auf der Startseite **„Zwei Lebensmittel vergleichen“** öffnen, Produkt A und B per EAN oder Kamera erfassen; alternativ ein bereits geladenes Produkt mit **„Dieses Produkt vergleichen“** übernehmen.
+- Rezeptur/Authentizität und NOVA-Verarbeitung getrennt vom Nährwertprofil betrachten. Bei vorhandenen Daten direktes Gegenüberstellen von Nutri-Score, Zucker, Salz, gesättigtem Fett, Ballaststoffen, Kohlenhydraten, E-Nummern und Zutaten.
+- Ein Gesamttipp erscheint nur, wenn vergleichbare Produktgruppen und **übereinstimmende, ausreichend belegte Einzelurteile** vorliegen. Sonst werden Unterschiede ohne künstlichen Gesamtsieger beschrieben.
+- Vorhandene lokale Allergen-, Zusatzstoff- und Gesundheitsprofile werden berücksichtigt. Ein anderes Produkt wird nicht als allergenfrei/medizinisch sicher behauptet, nur weil kein Eintrag gefunden wurde.
+- Vergleiche verwenden Open Food Facts. Internetverbindung erforderlich. Vergleichsdaten werden nicht dauerhaft gespeichert. Mehr Daten bedeuten nicht automatisch bessere Qualität; unterschiedliche Produktgruppen sind nur eingeschränkt vergleichbar.
+
+Installationshinweis: Nach Aktualisierung auf GitHub Pages die Seite bei Bedarf neu laden, damit der neue Service-Worker-Cache aktiv wird.

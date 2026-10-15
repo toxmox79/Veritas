@@ -50,3 +50,52 @@
 .highContrast .helpBubble{border:2px solid #284b35;color:#142f20}
 .highContrast .infoHelp summary{border:2px solid #214630;color:#123722}
 @media(max-width:680px){.infoHelp summary{width:38px;height:38px;min-width:38px;font-size:20px}.helpBubble{width:min(330px,calc(100vw - 48px));font-size:14px}.section-head{align-items:flex-start}#source{align-items:flex-start}}
+
+/* Veritas 2.0 – zwei Lebensmittel nachvollziehbar vergleichen */
+.compareEntry{display:block;width:100%;max-width:750px;margin:12px 0 0;min-height:48px;background:#e8f2e9;border-color:#c4d8c9;color:#164d3d;font-size:15px}
+.addCompare{width:auto;min-height:40px;padding:9px 14px;margin:4px 0 10px;font-size:14px;flex:none}
+.comparePanel{scroll-margin-top:12px;padding-top:22px}
+.comparePanel h2{margin:0;font-size:clamp(21px,2.7vw,29px);letter-spacing:-.035em}
+.compareIntro{margin:11px 0 18px}
+.compareSlots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.compareSlot{border:1px solid #d9e5da;background:#f8fbf7;border-radius:15px;padding:14px;min-width:0}
+.slotLetter{display:inline-flex;align-items:center;background:#dcebe0;color:#164c3a;font-weight:850;font-size:13px;border-radius:9px;padding:7px 10px}
+.comparePreview{display:flex;align-items:center;gap:12px;min-height:80px;margin:9px 0 14px;line-height:1.35;color:#66756d;font-size:14px;overflow-wrap:anywhere}
+.comparePreview img{width:62px;height:72px;object-fit:contain;background:white;border-radius:9px;flex-shrink:0}
+.comparePreview strong{display:block;color:#153b2f;font-size:16px;margin-bottom:4px}
+.comparePreview small{display:block;color:#64786a}
+.compareForm label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}
+.compareForm .scanrow{gap:7px}
+.compareForm .scanrow input{width:100%;padding:12px 10px;font-size:16px;border:1px solid #cbdace;border-radius:10px;background:white;min-width:0}
+.compareForm .primary{padding:8px 13px;min-height:45px}
+.compareSlot>.secondary{width:100%;margin-top:9px;padding:11px;min-height:43px}
+.compareStatus{padding:6px 1px;color:#4c695a;font-size:14px}
+.compareStatus.error{color:#973f29;font-weight:700}
+#compareResults{margin-top:15px}
+.compareOverall{border:1px solid #bedbc9;background:#edf7ef;border-radius:14px;padding:15px 17px;margin-bottom:13px}
+.compareOverall.neutral{background:#f3f5f3;border-color:#d5dfd6}
+.compareOverall h3{margin:0 0 7px;color:#164c38;font-size:20px}
+.compareOverall p{margin:0;line-height:1.5;color:#38594a}
+.compareVerdicts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.compareVerdict{border:1px solid #dfe7de;border-radius:13px;padding:15px;background:white}
+.compareVerdict h4{font-size:15px;margin:0 0 8px}
+.compareWinner{font-size:17px;font-weight:850;color:#14533a;margin:5px 0 7px}
+.compareVerdict p{margin:0;color:#495c50;line-height:1.55;font-size:14px}
+.compareData{margin-top:15px;border:1px solid #dce6dd;border-radius:13px;overflow:hidden}
+.compareData h3{font-size:17px;margin:0;padding:15px 14px;background:#eaf2e9}
+.compareScroll{overflow-x:auto}
+.compareTable{border-collapse:collapse;width:100%;font-size:14px;table-layout:fixed}
+.compareTable th,.compareTable td{padding:11px 12px;vertical-align:top;text-align:left;border-top:1px solid #e6eee6;overflow-wrap:anywhere}
+.compareTable th{color:#2e4f3e;background:#f8fbf8}
+.compareTable td:not(:first-child){font-variant-numeric:tabular-nums}
+.compareTable th:first-child{width:36%}
+.compareTable th:nth-child(2),.compareTable th:nth-child(3){width:32%}
+.compareBest{display:inline-block;border-radius:7px;background:#def2e2;color:#145936;padding:2px 6px;font-weight:800}
+.compareRisk{background:#ffefdf;color:#83551a;border-radius:7px;padding:2px 6px;font-weight:750}
+.compareSafety{margin-top:14px;border-left:4px solid #b98830;background:#fff8ec;padding:13px 15px;border-radius:9px}
+.compareSafety h3{font-size:16px;margin:0 0 5px}
+.compareSafety p{margin:0;color:#58482d;font-size:14px;line-height:1.5}
+.compareNote{font-size:13px;line-height:1.5;color:#69766d;margin-top:13px}
+@media(max-width:740px){.compareSlots,.compareVerdicts{grid-template-columns:1fr}.compareSlot{padding:13px}.comparePanel{padding:16px}.compareTable th,.compareTable td{padding:10px 7px;font-size:13px}.comparePanel .headActions{margin-bottom:0}}
+@media(max-width:380px){.compareForm .scanrow{flex-wrap:wrap}.compareForm .scanrow .primary{width:100%}}
+.highContrast .compareSlot,.highContrast .compareVerdict,.highContrast .compareData{border:2px solid #3b5e47}
