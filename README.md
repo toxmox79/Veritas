@@ -1,3 +1,49 @@
+# Veritas 2.9 – vollständiger Bundeslebensmittelschlüssel 4.0 als lokale Datenbank
+
+## Wichtig: BLS-Originaldaten importieren
+Der BLS-Datensatz selbst ist **nicht im Download-ZIP enthalten**, da der direkte Download
+in der Entwicklungsumgebung technisch nicht funktionierte. Das ZIP enthält aber den
+fertigen **vollständigen Importer, die lokale Datenbank und den Offline-Nährstoffrechner**.
+Einmaliger Datenimport über das **offizielle BLS-4.0-ZIP** (keine kostenpflichtige API):
+
+1. Originaldatei beim Max Rubner-Institut herunterladen: https://blsdb.de/download
+2. Veritas über HTTPS (z. B. GitHub Pages) öffnen, **Einstellungen → BLS 4.0** aufklappen.
+3. **„Offizielle BLS-ZIP / XLSX importieren“** klicken und die unveränderte Datei auswählen.
+4. Nach dem Import meldet Veritas **7.140 Lebensmittel und 138 Nährstoffe**.
+5. Unter **„Lebensmittel-Nährstoffdatenbank (BLS 4.0)“** Lebensmittel finden, beliebige
+   Nährstoffkomponenten sortieren, Mengen in Gramm rechnen und die Datenherkunft einsehen.
+6. Bei Nahrungsergänzungsmitteln basieren die Lebensmittelmengen ab dann auf den BLS-Daten,
+   sofern der jeweilige Nährstoff eine belastbare Zuordnung im Datenbestand hat.
+
+**Für Veröffentlichung an andere Nutzer:**
+Nach dem Import in Einstellungen auf **„Datenpaket für GitHub Pages exportieren“** klicken.
+Die heruntergeladene `bls4-data.json.gz` **neben `index.html`** auf GitHub Pages hochladen.
+Die App lädt dieses Datenpaket beim ersten Aufruf neuer Nutzer automatisch und speichert
+es in deren lokaler IndexedDB. Danach sind Suche und Mengenberechnung auch offline verfügbar.
+Der ZIP-Importer und der Export benötigen moderne Browser mit `DecompressionStream`
+und `CompressionStream` (aktuelle Android-Chrome-, Firefox- und Edge-Versionen).
+
+**Technische Umsetzung:** Original-XLSX wird direkt aus dem amtlichen ZIP entpackt, ohne
+Drittanbieter-API. Alle 7.140 BLS-Codes, Lebensmittelbezeichnungen, 138 Nährstoffwerte pro
+Lebensmittel sowie Datenherkunft und Referenzen werden erfasst. Fehlende Felder werden
+als unbekannt angezeigt, nicht als 0. Werte gelten für 100 g essbaren Anteil.
+Ein importierter BLS-Code ist **keine EAN eines Markenprodukts**. Der BLS enthält keine
+vollständigen Allergenlisten und keine aktuellen Preise. BLS-Rezeptur und Zutaten
+werden Markenprodukten nicht automatisch zugeordnet.
+
+**BLS-Lizenz und Namensnennung:**
+Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0 — Deutsche
+Nährstoffdatenbank. Karlsruhe. DOI: 10.25826/Data20251217-134202-0.
+CC BY 4.0 https://creativecommons.org/licenses/by/4.0/deed.de
+
+**Entwicklungstest:** Browser-XLSX-/ZIP-Import mit synthetisch erzeugten 7.140 Lebensmittel-
+zeilen, 138 Nährstoffspalten und einer vollständigen ZIP-Struktur geprüft. Der echte BLS-
+Originaldownload und die lokale IndexedDB-Speicherung konnten in der eingeschränkten
+Testumgebung nicht vollständig End-to-End geprüft werden. Bitte den ersten Import auf der
+veröffentlichten Seite testen, bevor Veritas an andere Nutzer verteilt wird.
+
+---
+
 # Veritas v2.8 – Nährstoffmengen aus Lebensmitteln statt pauschaler Nahrungsergänzungsempfehlungen
 
 ## Neu: natürliche Lebensmittel als Mengenvergleich – auch bei Kombipräparaten

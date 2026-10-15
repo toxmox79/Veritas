@@ -1,0 +1,16 @@
+BLS 4.0 – Deutsche Nährstoffdatenbank
+Herausgeber: Max Rubner-Institut (MRI), Karlsruhe.
+Zitierweise: Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0 — Deutsche Nährstoffdatenbank. Karlsruhe.
+DOI: 10.25826/Data20251217-134202-0
+Lizenz: Creative Commons Namensnennung 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/deed.de
+Offizielle Quelle: https://blsdb.de/download
+
+Die in Veritas verwendeten Nährstoffdaten stammen aus BLS 4.0.
+Die Datei bls4-data.json.gz in diesem Ordner enthält die aus der
+amtlichen BLS-Datei abgeleitete, für die PWA aufbereitete Datenbank
+(7.140 Lebensmittel, 138 Nährstoffe inkl. Datenherkunft und Referenzen).
+Die Datenpunkte werden nicht pauschal verändert.
+Alle BLS-Daten (auch Angaben zur Datenherkunft und Referenzen) werden lokal gespeichert.
+Teilweise andere Rundungen gelten nur für die Darstellung.
+Eine automatische EAN-Markenproduktzuordnung besteht nicht.

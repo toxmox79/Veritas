@@ -107,10 +107,12 @@ function nemFoodCombo(targets,available){
 function nemFoodEquivalentHtml(entries){
  const {targets,notComparable}=nemFoodTargets(entries);
  const kinds=Object.keys(targets);
- const available=nemFoodAvailable();
+ const blsFood=window.VeritasBLS?.recFoods();
+ const available=nemFoodAvailable(Array.isArray(blsFood)&&blsFood.length>=30?blsFood:NEM_REFERENCE_FOODS);
+ const blsActive=Array.isArray(blsFood)&&blsFood.length>=30;
  if(!kinds.length&&!notComparable.length)return '';
  let out='<section class="nemFoodPanel"><div class="nemFoodHeading"><h4 class="suppMiniTitle">🌿 Nährstoffe aus Lebensmitteln – Mengenvergleich</h4><span class="nemFoodTag">Rechnerische Orientierung</span></div>';
- out+='<p class="muted">Welche essbaren Mengen liefern im Durchschnitt ungefähr so viel von den <strong>deklarierten Nährstoffen pro Tagesportion</strong>? Die Berechnung verwendet gerundete Nährwerttabellen, keine Messwerte des konkreten Lebensmittels.</p>';
+ out+=`<p class="muted">Welche essbaren Mengen liefern im Durchschnitt ungefähr so viel von den <strong>deklarierten Nährstoffen pro Tagesportion</strong>? Die Berechnung verwendet ${blsActive?'die lokal importierten BLS-4.0-Durchschnittswerte':'gerundete Orientierungswerte aus 16 Beispiellebensmitteln'}, keine Messwerte des konkreten Lebensmittels.</p>`;
  if(kinds.length){
   out+='<div class="nemFoodGrid">';
   for(const kind of kinds){
@@ -139,8 +141,8 @@ function nemFoodEquivalentHtml(entries){
   }
  }
  if(notComparable.length)out+='<div class="nemFoodLimit"><strong>Noch nicht zuverlässig umrechenbar:</strong><ul>'+notComparable.map(t=>`<li>${html(t)}</li>`).join('')+'</ul></div>';
- if(Array.isArray(profile?.allergens)&&profile.allergens.length)out+='<p class="nemFoodNote">Die hinterlegten Allergene wurden bei der Auswahl berücksichtigt. Für Kreuzkontaminationen und weitere Unverträglichkeiten liegen keine vollständigen Daten vor.</p>';
+ if(Array.isArray(profile?.allergens)&&profile.allergens.length)out+='<p class="nemFoodNote">Wortbasierte Allergenhinweise wurden soweit möglich berücksichtigt; BLS führt keine vollständigen Allergenprofile. Das ist KEINE Allergenfreigabe. Verpackung und Kreuzkontakt prüfen.</p>';
  if(typeof healthConditions!=='undefined'&&healthConditions.includes('kidney'))out+='<p class="nemFoodCaution">Bei Niereninsuffizienz sind diese Lebensmittelmengen keine automatische Ernährungsempfehlung. Kalium-, Phosphat- und Eiweißgrenzen sind individuell und hier nicht vollständig berechnet.</p>';
- out+='<details class="nemFoodDetails"><summary>ⓘ Berechnung und Datenqualität</summary><p>Mengen = deklarierte Nährstoffmenge ÷ durchschnittlicher Gehalt je 100 g × 100. Das bedeutet nicht dieselbe Aufnahme im Körper. Natürliche Schwankungen, Lagerung, Zubereitung und Verdaulichkeit werden nicht individuell gemessen. Andere Nährstoffe, Salz, Kalorien, Kosten oder Nahrungsmengen einer gesamten Ernährung werden nicht vollständig bilanziert. Größere Mengen sind nur Rechenbeispiele und keine Verzehrempfehlung.</p><p>Referenzdaten: <a href="'+NEM_FOOD_REF_URLS.bls+'" target="_blank" rel="noopener noreferrer">Bundeslebensmittelschlüssel 4.0 (Max Rubner-Institut)</a> und <a href="'+NEM_FOOD_REF_URLS.usda+'" target="_blank" rel="noopener noreferrer">USDA FoodData Central</a>. Die Auswahl verwendet bewusst gerundete Orientierungswerte, keine vollständige Live-Anbindung.</p></details>';
+ out+='<details class="nemFoodDetails"><summary>ⓘ Berechnung und Datenqualität</summary><p>Mengen = deklarierte Nährstoffmenge ÷ durchschnittlicher Gehalt je 100 g × 100. Das bedeutet nicht dieselbe Aufnahme im Körper. Natürliche Schwankungen, Lagerung, Zubereitung und Verdaulichkeit werden nicht individuell gemessen. Andere Nährstoffe, Salz, Kalorien, Kosten oder Nahrungsmengen einer gesamten Ernährung werden nicht vollständig bilanziert. Größere Mengen sind nur Rechenbeispiele und keine Verzehrempfehlung.</p><p>Referenzdaten: <a href="'+NEM_FOOD_REF_URLS.bls+'" target="_blank" rel="noopener noreferrer">Bundeslebensmittelschlüssel 4.0 (Max Rubner-Institut)</a> und <a href="'+NEM_FOOD_REF_URLS.usda+'" target="_blank" rel="noopener noreferrer">USDA FoodData Central</a>. Aktuelle Datenbasis wird oben ausgewiesen.</p></details>';
  return out+'</section>';
 }
