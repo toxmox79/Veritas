@@ -75,3 +75,13 @@
 .nemFoodDetails{border-top:1px solid #d4e5d9;margin-top:15px;padding-top:10px}
 .nemFoodDetails summary{cursor:pointer;color:#28694e;font-weight:700;min-height:36px}
 .nemFoodDetails a{color:#15583f}
+
+/* v3.0 – vereinfachte Eingabe von Vitaminen und Kombipräparaten */
+.suppQuickEntry{padding:13px;margin:12px 0 16px;border:1px solid #b8d8c4;border-radius:13px;background:#eaf5ed}
+.suppQuickEntry>strong{display:block;margin-bottom:12px;color:#1a513a}
+.suppQuickGrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(95px,1fr) 90px;gap:10px}
+.suppQuickGrid label{margin:0}
+.supplementEditor .suppQuickGrid select{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid #cadcd0;border-radius:10px;background:#fff;color:#203d31;font:inherit}
+.suppQuickEntry button{margin-top:10px;min-height:44px}
+.suppQuickHelp{font-size:.88em;color:#596f62;line-height:1.5;margin:5px 0 12px}
+@media(max-width:600px){.suppQuickGrid{grid-template-columns:minmax(0,1fr) 84px}.suppQuickGrid label:first-child{grid-column:1/-1}}

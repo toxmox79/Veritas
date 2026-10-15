@@ -9,17 +9,19 @@ const NEM_REFS={
  bfr:'https://www.bfr.bund.de/veroeffentlichung/tabelle-hoechstmengenempfehlungen-des-bfr/',
  mg:'https://www.bfr.bund.de/cm/343/hoechstmengenvorschlaege-fuer-magnesium-in-lebensmitteln-inklusive-nahrungsergaenzungsmitteln.pdf',
  b6:'https://www.bfr.bund.de/cm/343/aktualisierung-2024-hoechstmengenvorschlaege-fuer-vitamin-b6-in-lebensmitteln-inklusive-nahrungsergaenzungsmitteln.pdf',
+ c:'https://www.bfr.bund.de/veroeffentlichung/hoechstmengenvorschlaege-fuer-vitamin-c-in-lebensmitteln-inklusive-nahrungsergaenzungsmitteln/',
  bvl:'https://www.bvl.bund.de/DE/Arbeitsbereiche/01_Lebensmittel/04_AntragstellerUnternehmen/13_FAQ/FAQ_OnlineShops/FAQ_OnlineShops_node.html'
 };
 // Bewusst nur verifizierte BfR-Höchstmengenvorschläge. KEINE gesetzlichen Grenzwerte / ULs.
 const NEM_BFR_LEVELS={
  magnesium:{name:'Magnesium',mg:250,url:NEM_REFS.mg,note:'Hohe zusätzliche Magnesiumdosen können Durchfall auslösen. Bei eingeschränkter Nierenfunktion gesondert abklären.'},
- vitaminb6:{name:'Vitamin B6',mg:0.9,url:NEM_REFS.b6,note:'Langfristig hohe Vitamin-B6-Zufuhr kann die peripheren Nerven schädigen. Mehrere Präparate können sich addieren.'}
+ vitaminb6:{name:'Vitamin B6',mg:0.9,url:NEM_REFS.b6,note:'Langfristig hohe Vitamin-B6-Zufuhr kann die peripheren Nerven schädigen. Mehrere Präparate können sich addieren.'},
+ vitaminc:{name:'Vitamin C',mg:250,url:NEM_REFS.c,note:'Hohe zusätzliche Dosierungen können Magen-Darm-Beschwerden auslösen. Ein BfR-Höchstmengenvorschlag ist keine gesetzliche Höchstgrenze und keine Sicherheitsgarantie.'}
 };
 const NEM_NUTRIENTS=[
  ['magnesium',/\bmagnesium\b/i],
  ['vitaminb6',/\b(?:vitamin\s*b\s*6|pyridoxin|pyridoxal(?:-5-phosphat)?)\b/i],
- ['vitaminc',/\b(?:vitamin\s*c|ascorbinsäure)\b/i],
+ ['vitaminc',/\b(?:vitamin\s*c|(?:l[-\s]*)?ascorbinsäure|ascorbic\s+acid|ascorbat)\b/i],
  ['vitamine',/\b(?:vitamin\s*e|tocopherol|tocopherolacetat)\b/i],
  ['vitamina',/\b(?:vitamin\s*a|retinol)\b/i],
  ['vitaminb1',/\b(?:vitamin\s*b\s*1|thiamin)\b/i],
@@ -65,11 +67,50 @@ function nemRead(code){try{const d=JSON.parse(localStorage.getItem(SUPPLEMENT_ST
 function nemSave(code,d){try{localStorage.setItem(SUPPLEMENT_STORAGE_PREFIX+code,JSON.stringify(d));return true}catch{return false}}
 function nemIngredientName(name){const s=nemClean(name,100);return NEM_NUTRIENTS.find(x=>x[1].test(s))?.[0]||null}
 function nemNumber(raw){const clean=nemClean(raw,40).replace(/\s/g,'').replace(',','.');if(!/^(?:\d{1,7}(?:\.\d{1,5})?|\.\d{1,5})$/.test(clean))return null;const number=Number(clean);return Number.isFinite(number)&&number>=0&&number<=1000000?number:null}
-function nemParseLines(text){const entries=[],errors=[];for(const [i,line] of nemClean(text,6000).split(/\r?\n/).entries()){if(!line.trim())continue;const bits=line.split(';').map(x=>x.trim());if(bits.length!==3 || !bits[0]){errors.push(`Zeile ${i+1}: Name ; Menge ; Einheit erwartet.`);continue}const qty=nemNumber(bits[1]);const unit=bits[2].replace(/μ/g,'µ').toLowerCase();if(qty===null|| !['mg','µg','ug','g'].includes(unit)){errors.push(`Zeile ${i+1}: Menge oder Einheit ungültig. Nur mg, µg oder g; IE bitte separat umrechnen und auf dem Etikett prüfen.`);continue}entries.push({name:nemClean(bits[0],100),qty,unit:(unit==='ug'?'µg':unit),kind:nemIngredientName(bits[0])})}
-return {entries,errors}}
+function nemParseLines(text){
+ const entries=[],errors=[];
+ for(const [i,line] of nemClean(text,6000).split(/\r?\n/).entries()){
+  const raw=line.trim();if(!raw)continue;
+  let bits=raw.split(';').map(x=>x.trim());
+  if(bits.length===2){const m=/^([0-9]+(?:[.,][0-9]+)?)\s*(mg|µg|μg|ug|g)$/i.exec(bits[1]);if(m)bits=[bits[0],m[1],m[2]]}
+  if(bits.length===1){
+   const right=/^(.+?)\s+([0-9]+(?:[.,][0-9]+)?)\s*(mg|µg|μg|ug|g)$/i.exec(raw);
+   const left=/^([0-9]+(?:[.,][0-9]+)?)\s*(mg|µg|μg|ug|g)\s+(.+)$/i.exec(raw);
+   if(right)bits=[right[1],right[2],right[3]];
+   else if(left)bits=[left[3],left[1],left[2]];
+  }
+  if(bits.length!==3||!bits[0]){errors.push(`Zeile ${i+1}: Bitte „L-Ascorbinsäure 120 mg“ oder „Vitamin C; 120; mg“ eingeben.`);continue}
+  const qty=nemNumber(bits[1]),unit=bits[2].replace(/μ/g,'µ').toLowerCase();
+  if(qty===null||!['mg','µg','ug','g'].includes(unit)){errors.push(`Zeile ${i+1}: Menge oder Einheit ungültig. mg, µg oder g verwenden.`);continue}
+  entries.push({name:nemClean(bits[0],100),qty,unit:(unit==='ug'?'µg':unit),kind:nemIngredientName(bits[0])});
+ }
+ return {entries,errors};
+}
+function nemKnowledgeHtml(entries,ingredients){
+ const kinds=new Set(entries.map(x=>x.kind).filter(Boolean));
+ if(nemIngredientName(ingredients)==='vitaminc')kinds.add('vitaminc');
+ let out='';
+ if(kinds.has('vitaminc')){
+  const total=entries.filter(x=>x.kind==='vitaminc').reduce((sum,x)=>sum+nemToMg(x),0);
+  const amount=total>0?`<p><strong>${nemFmt(total)} mg Vitamin C je Tagesportion</strong> entsprechen ${nemFmt(total/80*100)} % des EU-Nährstoffbezugswerts von 80 mg für Erwachsene. Der NRV ist kein individueller Bedarf.</p>`:'<p><strong>Vitamin C erkannt.</strong> Für den Mengenvergleich bitte den deklarierten Vitamin-C-Gehalt je Tagesportion eintragen.</p>';
+  out+='<div class="suppNotice good"><strong>L-Ascorbinsäure = Vitamin C</strong>'+amount+'<p>Vitamin C wird für die normale Kollagenbildung benötigt, trägt zur normalen Funktion des Immunsystems bei und verbessert die Aufnahme von Eisen aus pflanzlicher Nahrung. Die chemische Bezeichnung ist kein Qualitäts- oder Wirksamkeitsbeweis.</p><small><a href="https://www.bfr.bund.de/fragen-und-antworten/thema/vitamin-c-steckt-nicht-nur-in-obst-und-gemuese" target="_blank" rel="noopener noreferrer">BfR: Vitamin C ↗</a></small></div>';
+ }
+ return out;
+}
+function nemAddQuickNutrient(){
+ const name=$('suppQuickName').value.trim(),value=$('suppQuickAmount').value.trim(),unit=$('suppQuickUnit').value;
+ if(!name&&!value)return false;
+ if(!name||!value){$('suppEditorStatus').textContent='Bitte Nährstoff und Menge zusammen ausfüllen.';return null}
+ const row=`${name}; ${value}; ${unit}`,parsed=nemParseLines(row);
+ if(parsed.errors.length){$('suppEditorStatus').textContent=parsed.errors.join(' ');return null}
+ const previous=$('suppNutrients').value.trim();
+ $('suppNutrients').value=previous?previous+'\n'+row:row;
+ $('suppQuickName').value='';$('suppQuickAmount').value='';$('suppEditorStatus').textContent='Nährstoff übernommen. Weitere Stoffe ergänzen oder unten speichern.';
+ return true;
+}
 function nemToMg(item){return item.unit==='g'?item.qty*1000:item.unit==='µg'?item.qty/1000:item.qty}
 function nemFmt(value){return Number(value).toLocaleString('de-DE',{maximumFractionDigits:4})}
-function nemIsSupplement(p){const terms=(String(p.product_name||'')+' '+String(p.product_name_de||'')+' '+String(p.categories||'')+' '+(p.categories_tags||[]).join(' ')+' '+String(p.generic_name_de||'')).toLowerCase();const group=/(?:food[-\s]?supplements?|dietary[-\s]?supplements?|nahrungsergänzung|vitaminpräparat|mineralstoffpräparat|supplement[s]?\b)/i.test(terms);const format=/(?:kapseln?|tabletten?|softgels?|brausetabletten?|multivitamin|omega[-\s]?3[-\s]?kapseln?)/i.test(terms);return group||format}
+function nemIsSupplement(p){const terms=(String(p.product_name||'')+' '+String(p.product_name_de||'')+' '+String(p.categories||'')+' '+(p.categories_tags||[]).join(' ')+' '+String(p.generic_name_de||'')).toLowerCase();const group=/(?:food[-\s]?supplements?|dietary[-\s]?supplements?|nahrungsergänzung|vitaminpräparat|mineralstoffpräparat|supplement[s]?\b)/i.test(terms);const format=/(?:kapseln?|tabletten?|softgels?|brausetabletten?|multivitamin|omega[-\s]?3[-\s]?kapseln?|vitamin[-\s]*c[-\s]*pulver|ascorbinsäure)/i.test(terms);return group||format}
 function nemCheckDoses(entries){
  const warnings=[],seen=[],totalByKind=new Map();
  for(const entry of entries){if(entry.kind)seen.push(entry.kind);if(NEM_BFR_LEVELS[entry.kind])totalByKind.set(entry.kind,(totalByKind.get(entry.kind)||0)+nemToMg(entry))}
@@ -118,7 +159,8 @@ function nemRenderReport(p,code,d){let body='';const parsed=nemParseLines(d?.nut
  if(allergyWarnings.length)body+=nemItem('⚠ Persönlicher Allergen-Treffer',`In den verfügbaren Angaben erkannt: ${allergyWarnings.map(x=>x.label+' ('+x.source+')').join(', ')}. Originalverpackung und Spurenhinweise sorgfältig prüfen.`, 'danger');
  if(Array.isArray(profile?.allergens)&&profile.allergens.length&&!allergyWarnings.length)body+=nemItem('Allergieprofil: keine bestätigte Freigabe','Das Fehlen eines Treffers beweist nicht, dass das Nahrungsergänzungsmittel frei von ausgewählten Allergenen oder Spuren ist. Herstellerangaben prüfen.', 'missing');
  body+='<h4 class="suppMiniTitle">1. Dosierung & Zusatznutzen</h4>';
- if(!daily || entries.length===0)body+=nemItem('Tagesdosierung nicht ausreichend belegt','Für eine Dosisprüfung müssen die empfohlene Tagesportion und die Mengen der einzelnen Stoffe pro Tagesportion vom Etikett eingetragen werden. Werte je 100 g oder bloße Prozentangaben reichen nicht.','missing');
+  body+=nemKnowledgeHtml(entries,ingredients);
+ if(!daily || entries.length===0)body+=nemItem('Tagesdosierung nicht ausreichend belegt',entries.length?'Bitte die Verzehrempfehlung von der Packung ergänzen (z. B. „1 Messlöffel“).':'Bitte unter „Nährstoffmenge“ den deklarierten Vitamin- oder Mineralstoffgehalt eingeben, z. B. „Vitamin C – 120 mg“. Die Hersteller-Tagesportion ist dagegen „1 Messlöffel“. Für eine Dosisprüfung werden beide Angaben benötigt.','missing');
  else{
   body+=`<p class="muted">Empfohlene Hersteller-Tagesportion: <strong>${html(daily)}</strong>. Deklarierte Werte (manuell übertragen):</p><table class="suppDosageTable"><thead><tr><th>Stoff</th><th>Pro Tagesportion</th><th>Einordnung</th></tr></thead><tbody>${entries.map(x=>`<tr><td>${html(x.name)}</td><td>${nemFmt(x.qty)} ${html(x.unit)}</td><td>${x.kind?(NEM_BFR_LEVELS[x.kind]?'BfR-Abgleich möglich':'Kein geprüfter Richtwert integriert'):'Nicht zugeordnet'}</td></tr>`).join('')}</tbody></table>`;
   const dose=nemCheckDoses(entries);body+=dose.warnings.length?dose.warnings.map(w=>nemItem(w.title,w.detail,w.kind,w.url)).join(''):nemItem('Für diese Stoffe ist noch kein quantitativer Grenzwert integriert','Das bedeutet nicht, dass die Dosis unbedenklich ist. Veritas weist mangels geprüfter Vergleichswerte kein grünes Sicherheitsurteil aus.','missing');
@@ -158,12 +200,15 @@ function renderSupplement(p,code){
  $('suppNutrients').value=d?.nutrients||'';
  $('suppIngredients').value=d?.ingredients||p.ingredients_text_de||p.ingredients_text||'';
  $('suppClaims').value=d?.claims||'';
+ $('suppQuickName').value='';$('suppQuickAmount').value='';
+ if(!d?.nutrients){const hint=nemIngredientName(p.ingredients_text_de||p.ingredients_text||p.product_name_de||p.product_name||'');if(hint==='vitaminc')$('suppQuickName').value='Vitamin C';}
  $('supplementEditor').hidden=!!d;
  $('suppEditorStatus').textContent='';
  nemRenderReport(p,code,d);
 }
+$('suppAddNutrient').addEventListener('click',nemAddQuickNutrient);
 $('editSupplement').addEventListener('click',()=>{const el=$('supplementEditor');el.hidden=!el.hidden;if(!el.hidden)el.scrollIntoView({behavior:'smooth',block:'nearest'})});
 $('cancelSupplement').addEventListener('click',()=>$('supplementEditor').hidden=true);
 $('switchAnalysis').addEventListener('click',()=>{if(!state.product)return;const is=$('result').classList.contains('isSupplement');$('productMode').value=is?'food':'supplement';render(state.product,state.productCode||$('ean').value)});
 $('productMode').addEventListener('change',()=>{if(state.product)render(state.product,state.productCode||$('ean').value)});
-$('supplementEditor').addEventListener('submit',event=>{event.preventDefault();if(!state.product||!state.productCode)return;const raw=$('suppNutrients').value;const parsed=nemParseLines(raw);if(parsed.errors.length){$('suppEditorStatus').textContent=parsed.errors.join(' ');return}const d={name:nemClean($('suppName').value,180),dailyDose:nemClean($('suppDailyDose').value,120),nutrients:nemClean(raw,6000),ingredients:nemClean($('suppIngredients').value,3000),claims:nemClean($('suppClaims').value,6500),savedAt:new Date().toISOString()};if(!nemSave(state.productCode,d)){$('suppEditorStatus').textContent='Speichern nicht möglich. Browser-Speicher überprüfen.';return}$('supplementEditor').hidden=true;render(state.product,state.productCode)});
+$('supplementEditor').addEventListener('submit',event=>{event.preventDefault();if(!state.product||!state.productCode)return;const pending=nemAddQuickNutrient();if(pending===null)return;const raw=$('suppNutrients').value;const parsed=nemParseLines(raw);if(parsed.errors.length){$('suppEditorStatus').textContent=parsed.errors.join(' ');return}const d={name:nemClean($('suppName').value,180),dailyDose:nemClean($('suppDailyDose').value,120),nutrients:nemClean(raw,6000),ingredients:nemClean($('suppIngredients').value,3000),claims:nemClean($('suppClaims').value,6500),savedAt:new Date().toISOString()};if(!nemSave(state.productCode,d)){$('suppEditorStatus').textContent='Speichern nicht möglich. Browser-Speicher überprüfen.';return}$('supplementEditor').hidden=true;render(state.product,state.productCode)});

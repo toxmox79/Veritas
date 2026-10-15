@@ -108,8 +108,9 @@ function nemFoodEquivalentHtml(entries){
  const {targets,notComparable}=nemFoodTargets(entries);
  const kinds=Object.keys(targets);
  const blsFood=window.VeritasBLS?.recFoods();
- const available=nemFoodAvailable(Array.isArray(blsFood)&&blsFood.length>=30?blsFood:NEM_REFERENCE_FOODS);
  const blsActive=Array.isArray(blsFood)&&blsFood.length>=30;
+ // Ergänzende Grundnahrungsmittel bleiben als Beispiele verfügbar, falls BLS keine passende Alltagsspeise liefert.
+ const available=nemFoodAvailable(blsActive?[...blsFood,...NEM_REFERENCE_FOODS]:NEM_REFERENCE_FOODS);
  if(!kinds.length&&!notComparable.length)return '';
  let out='<section class="nemFoodPanel"><div class="nemFoodHeading"><h4 class="suppMiniTitle">🌿 Nährstoffe aus Lebensmitteln – Mengenvergleich</h4><span class="nemFoodTag">Rechnerische Orientierung</span></div>';
  out+=`<p class="muted">Welche essbaren Mengen liefern im Durchschnitt ungefähr so viel von den <strong>deklarierten Nährstoffen pro Tagesportion</strong>? Die Berechnung verwendet ${blsActive?'die lokal importierten BLS-4.0-Durchschnittswerte':'gerundete Orientierungswerte aus 16 Beispiellebensmitteln'}, keine Messwerte des konkreten Lebensmittels.</p>`;

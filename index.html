@@ -42,10 +42,10 @@
  <button type="button" id="editSupplement" class="secondary suppEditButton">✎ Angaben vom Etikett ergänzen</button>
  <form id="supplementEditor" class="supplementEditor" hidden>
   <label>Produktbezeichnung<input id="suppName" maxlength="180" placeholder="Produktname von der Packung" autocomplete="off"></label>
-  <label>Empfohlene Tagesportion<input id="suppDailyDose" maxlength="120" placeholder="z. B. 2 Kapseln oder 10 ml"></label>
+  <label>Hersteller-Tagesportion (z. B. „1 Messlöffel“ oder „2 Kapseln“)<input id="suppDailyDose" maxlength="120" placeholder="z. B. 1 Messlöffel"></label><p class="suppQuickHelp">Die Menge „120 mg“ gehört in das Feld <strong>Nährstoffmenge</strong> unten – nicht in die Tagesportion.</p><div class="suppQuickEntry"><strong>Nährstoff schnell hinzufügen</strong><div class="suppQuickGrid"><label>Stoff / Nährstoff<input id="suppQuickName" list="suppQuickNames" placeholder="z. B. L-Ascorbinsäure" autocomplete="off"></label><datalist id="suppQuickNames"><option value="Vitamin C"><option value="L-Ascorbinsäure"><option value="Magnesium"><option value="Vitamin B6"><option value="Vitamin D"><option value="Calcium"><option value="Zink"></datalist><label>Nährstoffmenge<input id="suppQuickAmount" type="text" inputmode="decimal" placeholder="z. B. 120"></label><label>Einheit<select id="suppQuickUnit"><option value="mg">mg</option><option value="µg">µg</option><option value="g">g</option></select></label></div><button id="suppAddNutrient" type="button" class="secondary">+ Nährstoff übernehmen</button><small>Bei Kombipräparaten mehrere Nährstoffe nacheinander hinzufügen. Alternativ die Liste darunter verwenden.</small></div>
   <label>Nährstoffe / Wirkstoffmengen pro empfohlener Tagesportion
    <textarea id="suppNutrients" rows="5" placeholder="Magnesium; 400; mg&#10;Vitamin B6; 3; mg&#10;Vitamin D; 20; µg"></textarea>
-   <small>Eine Zeile pro Stoff: Name ; Menge ; Einheit (mg, µg oder g). Nur den deklarierten tatsächlichen Nährstoffgehalt pro Tagesportion eintragen, nicht das Salzgewicht und nicht Werte pro 100 g.</small>
+   <small>Erlaubt sind z. B. „L-Ascorbinsäure 120 mg“, „Vitamin C; 120; mg“ oder „Magnesium; 150; mg“. Bei Kombipräparaten je Nährstoff eine Zeile. Nur die tatsächliche deklarierte Nährstoffmenge angeben, nicht das Gewicht einer Trägerverbindung.</small>
   </label>
   <label>Zutaten / Hilfsstoffe laut Packung<textarea id="suppIngredients" rows="3" placeholder="Vollständige Zutatenliste, soweit vorhanden"></textarea></label>
   <label>Gesundheits- und Werbeversprechen von Verpackung oder Werbung
