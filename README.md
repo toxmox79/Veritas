@@ -1,3 +1,62 @@
+# Veritas v2.8 – Nährstoffmengen aus Lebensmitteln statt pauschaler Nahrungsergänzungsempfehlungen
+
+## Neu: natürliche Lebensmittel als Mengenvergleich – auch bei Kombipräparaten
+
+- **Vitamin C 100 mg**: beispielsweise ca. **190 g Orange**, ca. **80 g rote Paprika** oder ca. **110 g Kiwi** (gerundete Tabellenwerte für essbaren Anteil).
+- **Kombipräparate**: Zusammengerechnete, überschlagsmäßige Lebensmittelkombinationen für mehrere Nährstoffe; die Deckung wird für **jeden Nährstoff einzeln** in Prozent und Menge angezeigt. Es handelt sich nicht um eine optimierte Ernährungsplanung.
+- **Nicht abgedeckte Stoffe**: werden ausdrücklich aufgeführt, nicht aus der Auswertung verschwiegen. Omega-3 wird nicht pauschal als beliebig austauschbares ALA/EPA/DHA behandelt. Jod wird aufgrund stark schwankender Lebensmitteldaten nicht pauschal hochgerechnet.
+- **Plausible Portionen**: bei besonders großen errechneten Einzelportionen erscheint ein Hinweis. Die gemeinsame Lebensmittelkombination beschränkt die Portionen und kann deshalb einige Zielmengen nicht vollständig erreichen.
+- **Persönliche Allergien**: bekannte allergenhaltige Referenzlebensmittel werden aus der Alternativenliste ausgeschlossen; das garantiert jedoch keine Allergenfreiheit im Handel. Bei Niereninsuffizienz erscheint ein zusätzlicher Hinweis auf die begrenzte Aussagekraft.
+- **Hilfsstoffe aufschlüsseln**: auf dem Etikett ausdrücklich genannte Füllstoffe, Trennmittel, Kapselbestandteile, Süßungsmittel und Aromen erhalten eine kurze Funktionsbezeichnung, keine automatische Schädlichkeitsbehauptung.
+- **Keine Arzneimittel**: Die neue Funktion bewertet ausdrücklich Nahrungsergänzungsmittel und ihre Lebensmittelinhaltsstoffe. Keine Medikation oder Therapieempfehlung.
+- **Daten**: handverlesene, gerundete Orientierungswerte für derzeit 16 häufige Lebensmittel, basierend auf Referenzwerten aus Lebensmittelzusammensetzungstabellen. Nicht die gesamte BLS-Datenbank eingebaut oder live abgefragt. Es gelten natürliche Schwankungen nach Sorte, Zubereitung, Lagerung und Charge; individuelle Aufnahme kann abweichen.
+- **Datenschutz**: Präparate-Etiketten und Profile bleiben wie bisher im Browser. Keine neue Nutzerregistrierung, keine zusätzliche Cloud-Schnittstelle.
+
+### Bedienung
+1. EAN scannen, die Produktart **Nahrungsergänzungsmittel** wählen, falls die automatische Erkennung nicht anschlägt.
+2. **Angaben vom Etikett ergänzen** öffnen und Tagesportion sowie Nährstoffmengen als `Name; Menge; Einheit` erfassen (z. B. `Vitamin C; 100; mg`, `Magnesium; 150; mg`, `Vitamin B6; 1; mg`).
+3. Speichern; im Auswertungsbereich **„Nährstoffe aus Lebensmitteln – Mengenvergleich“** Einzelalternativen und bei mindestens zwei unterstützten Nährstoffen eine kombinierte Lebensmittelberechnung ansehen.
+
+### Referenzquellen
+- [Bundeslebensmittelschlüssel 4.0 – Max Rubner-Institut](https://blsdb.de/) – Open Data CC BY 4.0, allgemeine Lebensmittel-Nährstoffdaten (2025).
+- [USDA FoodData Central](https://fdc.nal.usda.gov/) – Referenz für Nährstoffzusammensetzungen.
+
+**Grenzen:** Nährstoffgleiche Mengen bedeuten nicht automatisch identische Bioverfügbarkeit, Verträglichkeit oder gesundheitliche Wirkung. Die App erkennt keinen individuellen Bedarf und bewertet keine Schadstoff- oder Pestizidrückstände dieser Lebensmittel. Ein rechnerisches Beispiel ist keine automatische Verzehrempfehlung, gerade bei chronischen Erkrankungen.
+
+---
+
+# Veritas 2.7 – Nahrungsergänzungsmittel & Werbeversprechen
+
+## Neuer Bereich
+- Lebensmittelanalysen bleiben bestehen. **Medikamente werden bewusst nicht bewertet.**
+- Nach Barcode-Scan Produktart automatisch erkennen; über die Auswahl **„Nahrungsergänzungsmittel“** auch manuell erzwingen. Bei fehlendem Datenbankprodukt können Etikettangaben lokal ergänzt werden. Das ist **kein** amtlich bestätigter Produktdatensatz.
+- Eigene Analyseansicht für Nahrungsergänzungsmittel statt Nutri-Score, NOVA und Lebensmittel-Ampel; bestehende Lebensmittelvergleiche bleiben unverändert.
+- **Tagesportion und Deklaration:** Nährstoffe, Mengen (mg, µg, g), Zutaten und Werbeversprechen von der Verpackung im Etikett-Editor eintragen. Keine Schätzung aus Nährwerten je 100 g. Mengen ohne geprüfte Einheit (z. B. IE) werden abgewiesen. Die Daten werden **nur im lokalen Browserprofil** unter dem jeweiligen Barcode gespeichert.
+- **Dosierungsprüfung:** Derzeit sind quantitative BfR-Vergleiche für Magnesium (250 mg/Tag) und Vitamin B6 (0,9 mg/Tag) hinterlegt. Beide Zahlen sind **Höchstmengenvorschläge pro Tagesverzehrempfehlung eines NEM-Produkts**, keine gesetzlichen Höchstwerte und keine individuellen medizinischen Sicherheitsgrenzen. Mehrere gleich deklarierte Nährstoffmengen werden pro Produkt zusammengerechnet. Für andere Stoffe gilt **„kein geprüfter Richtwert integriert“**, nicht „unbedenklich“.
+- **Werbeversprechen:** Je Zeile den Originalwortlaut eintragen. Die PWA kennzeichnet auffällige Heilungsversprechen (z. B. „Heilt Diabetes“), ordnet eine **kleine Auswahl** typischer Aussagen vorsichtig bekannten EU-Claim-Bereichen zu und meldet den Rest als **ungeprüft**. **KEIN vollständiger automatischer Rechts-/EU-Register-Abgleich**, keine Feststellung einer Rechtsverletzung. Eine mögliche Zuordnung bedeutet nicht, dass die verwendete Formulierung, Menge oder Kennzeichnung zulässig ist.
+- **Vorsorge:** Hinweise zu natürlichen Lebensmitteln als Quellen, ohne die Nährstoffaufnahme oder eine Therapiegleichwertigkeit zu behaupten. Bereits vorhandene Allergie- und Niereneinstellungen werden ergänzend beachtet. Bei NEM werden möglicherweise unpassende Schwellenwerte pro 100 g der normalen Lebensmittelanalyse verborgen.
+- **Lesbarkeit:** Separate Schriftgröße für den neuen Bereich über Einstellungen → Schriftgrößen & Lesbarkeit, 100–180 %.
+
+## Datenqualität / rechtliche Grenzen
+- Open Food Facts wird für die EAN-Suche verwendet. Es ist **keine vollständige deutsche Nahrungsergänzungsmittel-Datenbank**. Angaben und Werbeslogans fehlen häufig. Deshalb können Daten direkt von der Verpackung ergänzt werden.
+- Das EU-Register der Kommission umfasst zugelassene und abgelehnte Claims sowie Bedingungen. Ein vollautomatischer Text-, Quellen- und Mengenabgleich ist in **v2.7 noch nicht** implementiert. Angaben unter „Werbeversprechen prüfen“ sind vorsortierte Hinweise, **keine verbindliche rechtliche Prüfung**.
+- Arzneimittel, Medikationslisten, echte Wechselwirkungsdatenbanken und Einnahmeempfehlungen sind bewusst nicht Bestandteil von Veritas.
+- Die Herstellerangaben zu Wirkstoffen sowie Menge und Verunreinigungen sind ohne unabhängige Laboranalyse nicht verifizierbar. Bei Krankheiten, Schwangerschaft, Kindern, bestehenden Medikamenten oder mehreren Präparaten ärztlich bzw. pharmazeutisch prüfen.
+- Eine NEM-Anzeige beim BVL ist **keine Zulassung** oder amtliche Bestätigung der Qualität.
+
+## Amtliche Quellen (Stand Oktober 2026)
+- [EU-Register der Gesundheits- und Nährwertclaims](https://food.ec.europa.eu/food-safety/labelling-and-nutrition/nutrition-and-health-claims/eu-register-health-claims_en)
+- [EU Datensatz Health Claims (Open Data)](https://data.europa.eu/data/datasets/u3yjqnr7wx2gjkbqmajsya?locale=en)
+- [BfR-Höchstmengenempfehlungen](https://www.bfr.bund.de/veroeffentlichung/tabelle-hoechstmengenempfehlungen-des-bfr/)
+- [BfR Magnesium](https://www.bfr.bund.de/cm/343/hoechstmengenvorschlaege-fuer-magnesium-in-lebensmitteln-inklusive-nahrungsergaenzungsmitteln.pdf)
+- [BfR Vitamin B6](https://www.bfr.bund.de/cm/343/aktualisierung-2024-hoechstmengenvorschlaege-fuer-vitamin-b6-in-lebensmitteln-inklusive-nahrungsergaenzungsmitteln.pdf)
+- [BVL zu NEM-Anzeigen](https://www.bvl.bund.de/DE/Arbeitsbereiche/01_Lebensmittel/04_AntragstellerUnternehmen/13_FAQ/FAQ_OnlineShops/FAQ_OnlineShops_node.html)
+
+## Installation
+Wie zuvor: **alle Dateien aus `lebensmittel-check/` in den Webroot von GitHub Pages übertragen**, einschließlich neuer Dateien `supplements.js` und `supplements.css`, Manifest, Icons und Service Worker. Über HTTPS aufrufen. Alte Profil- und Preisdaten bleiben bei gleicher Adresse erhalten. Falls ein altes Design erscheint, Seite aktualisieren oder PWA schließen und erneut öffnen; Offline-Cache ist auf `veritas-v27` angehoben.
+
+---
+
 # Veritas PWA v2.6 – Vorsorgeprinzip und Speiseölbewertung
 
 ## Neu in dieser Version

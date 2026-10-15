@@ -1,7 +1,7 @@
 {
-  "name": "Veritas – Lebensmittel verstehen",
+  "name": "Veritas – Lebensmittel & Nahrungsergänzung prüfen",
   "short_name": "Veritas",
-  "description": "Lebensmittel vergleichen, natürliche Alternativen und vorsorgeorientierte Bewertung von Speiseölen",
+  "description": "Barcodeanalyse für Lebensmittel und Nahrungsergänzungsmittel: Zutaten, Tagesdosierung, Risiken und Werbeversprechen",
   "lang": "de",
   "start_url": "./",
   "scope": "./",

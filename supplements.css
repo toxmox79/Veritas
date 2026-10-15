@@ -1,0 +1,77 @@
+
+/* Veritas v2.7: Nahrungsergänzungsmittel, eigenständige Prüfung */
+.modeBar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:7px 0 12px}
+.modeBar label{font-size:13px;font-weight:800;color:#346b51}
+.modeBar select{padding:12px;border-radius:11px;border:1px solid #cdded0;background:#fff;color:#173d31;font-size:15px;min-width:220px}
+.switchAnalysis{margin:8px 10px 8px 0;font-size:13px}
+.supplementSection{border:2px solid #cbded0}
+.supplementSection h3{margin:0}
+.supplementLead{display:flex;align-items:flex-start;gap:11px;background:#eef6ef;padding:15px;border-radius:12px;margin:15px 0}
+.supplementLead strong{font-size:17px;color:#194f3b}
+.supplementLead p{margin:4px 0 0;line-height:1.5}
+.suppNotice{border:1px solid #dfe9db;border-radius:12px;background:#fafcf9;padding:12px 14px;margin:11px 0;line-height:1.5}
+.suppNotice.warn{background:#fff4e3;border-color:#eacb8e;color:#815012}
+.suppNotice.danger{background:#fff0ed;border-color:#edbab4;color:#872a22}
+.suppNotice.missing{background:#f0f2f5;border-color:#dce0e7;color:#475264}
+.suppNotice.good{background:#edf6ed;color:#23543e;border-color:#cce4d3}
+.suppNotice strong{display:block;margin-bottom:5px}
+.suppNotice p{margin:3px 0;line-height:1.55}
+.suppNotice small{display:block;color:inherit;opacity:.78;margin-top:7px}
+.supplementEditor{background:#f7faf6;border:1px solid #cfdfd1;border-radius:15px;padding:16px;margin:15px 0}
+.supplementEditor label{font-size:14px;font-weight:740;display:block;margin-bottom:14px}
+.supplementEditor input,.supplementEditor textarea{display:block;width:100%;margin-top:6px;padding:11px 12px;border:1px solid #cadcd0;border-radius:10px;background:#fff;font:inherit;font-weight:400;color:#203d31}
+.supplementEditor textarea{resize:vertical;line-height:1.5}
+.supplementEditor small{display:block;color:#637a6b;font-size:12px;line-height:1.45;margin-top:6px;font-weight:400}
+.suppFormActions{display:flex;gap:10px;flex-wrap:wrap}
+.suppFormActions button{flex:1 1 210px;min-height:46px}
+.suppEditorStatus{margin-top:7px;font-size:13px;font-weight:700;color:#8a412b}
+.suppDosageTable{width:100%;border-collapse:collapse;margin:12px 0}
+.suppDosageTable th,.suppDosageTable td{padding:10px 8px;border-bottom:1px solid #e1e9e2;text-align:left;vertical-align:top;font-size:14px}
+.suppDosageTable th{color:#66786e;font-size:12px}
+.suppSourceLinks{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;margin:14px 0}
+.suppMiniTitle{margin:22px 0 8px!important;color:#1b4838}
+#result.isSupplement #precautionSection,
+#result.isSupplement #alternativesSingle,
+#result.isSupplement .authenticity,
+#result.isSupplement #detailsGrid,
+#result.isSupplement [data-section="ingredients"],
+#result.isSupplement [data-section="chemicals"],
+#result.isSupplement [data-section="substitutes"],
+#result.isSupplement #conditionAlerts,
+#result.isSupplement #addToCompare{display:none!important}
+#supplementSection[hidden],#supplementEditor[hidden]{display:none!important}
+@media(max-width:680px){.modeBar{align-items:stretch}.modeBar select{flex:1;min-width:0}.supplementEditor{padding:12px}.suppDosageTable th,.suppDosageTable td{font-size:12px;padding:9px 5px}.suppFormActions{flex-direction:column}}
+@media(max-width:680px){.suppFormActions button{flex:0 0 auto;width:100%;min-height:46px;padding:12px 16px}}
+/* v2.8: Natürliche Lebensmittelmengen (Einzelpräparat / Kombipräparat) */
+.nemFoodPanel{margin:20px 0;padding:16px;border:1px solid #bcd8c7;border-radius:16px;background:#f7fbf8;line-height:1.5}
+.nemFoodHeading{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between}
+.nemFoodHeading h4{margin:0!important}
+.nemFoodTag{color:#1a5e46;background:#e1f1e7;border-radius:999px;padding:5px 10px;font-weight:700;font-size:12px}
+.nemFoodGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,255px),1fr));gap:12px;margin:14px 0}
+.nemFoodNutrient{padding:14px;background:white;border:1px solid #dae9de;border-radius:12px;min-width:0}
+.nemFoodNutrientHead{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.nemFoodNutrientHead strong{color:#164431;font-size:1.08em}
+.nemFoodNutrientHead span{color:#5d6d63;font-size:.9em}
+.nemFoodOptions{list-style:none;margin:0;padding:0}
+.nemFoodOptions li{display:flex;flex-wrap:wrap;gap:4px 8px;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #eef2ee}
+.nemFoodOptions li span{font-weight:800;white-space:nowrap;color:#1e6749}
+.nemFoodUnreal{flex-basis:100%;color:#9c4f18}
+.nemFoodCombo{padding:14px;border:1px solid #acd5bb;background:#eaf6ee;border-radius:12px;margin-top:15px}
+.nemFoodCombo>strong{font-size:1.08em;color:#174b35}
+.nemFoodCombo>p{margin:8px 0}
+.nemFoodComboFoods{display:flex;gap:8px;flex-wrap:wrap;list-style:none;margin:10px 0;padding:0}
+.nemFoodComboFoods li{background:#fff;padding:8px 10px;border:1px solid #d5e4d8;border-radius:8px;display:flex;gap:10px}
+.nemFoodComboFoods strong{color:#13543a;white-space:nowrap}
+.nemFoodCoverage{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px;margin:15px 0}
+.nemFoodCoverageLabel{display:flex;justify-content:space-between;gap:6px;font-size:.9em}
+.nemFoodCoverageLabel strong{color:#176044}
+.nemFoodMeter{height:8px;background:#d5e1da;border-radius:99px;overflow:hidden;margin:6px 0}
+.nemFoodMeter i{display:block;height:100%;background:#2f9566;border-radius:99px}
+.nemFoodCoverage small{color:#596b5e}
+.nemFoodCaution{background:#fff5df;border:1px solid #e3cc95;padding:10px;border-radius:9px;color:#6d4d1a}
+.nemFoodLimit{background:#f2f4f6;border:1px solid #e2e6e7;border-radius:10px;padding:12px;margin:12px 0}
+.nemFoodLimit ul{margin:6px 0 0;padding-left:18px}
+.nemFoodNote{color:#415b4a}
+.nemFoodDetails{border-top:1px solid #d4e5d9;margin-top:15px;padding-top:10px}
+.nemFoodDetails summary{cursor:pointer;color:#28694e;font-weight:700;min-height:36px}
+.nemFoodDetails a{color:#15583f}
