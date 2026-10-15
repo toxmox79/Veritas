@@ -1,1 +1,54 @@
-const CACHE='veritas-v31';const STATIC=['./','./index.html','./styles.css','./app.js','./supplements.js','./food-equivalents.js','./bls-database.js','./supplements.css','./comparison.js','./precaution.js','./alternatives.js','./product-evidence.js','./authenticity.js','./additive-health.js','./health-profile.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/logo.png'];self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC)));self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const url=new URL(e.request.url);if(url.origin!==self.location.origin)return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{if(r.ok){const clone=r.clone();caches.open(CACHE).then(cache=>cache.put(e.request,clone))}return r})))})
+/* Veritas 3.1 – network-first App-Shell; Browserspeicher bleibt erhalten.
+ * Bei jeder Veröffentlichung von geänderten Dateien CACHE-Version erhöhen.
+ */
+'use strict';
+const CACHE='veritas-shell-v32';
+const STATIC=[
+ './','./index.html','./styles.css','./updates.css','./app.js','./updates.js',
+ './supplements.js','./food-equivalents.js','./bls-database.js','./supplements.css',
+ './comparison.js','./precaution.js','./alternatives.js','./product-evidence.js',
+ './authenticity.js','./additive-health.js','./health-profile.js','./manifest.webmanifest',
+ './icons/icon-192.png','./icons/icon-512.png','./icons/logo.png'
+];
+self.addEventListener('install',event=>{
+ event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(STATIC)));
+ // Aktivierung erst nach Klick; laufende Bearbeitung nicht unterbrechen.
+});
+self.addEventListener('message',event=>{
+ if(event.data?.type==='VERITAS_SKIP_WAITING')self.skipWaiting();
+});
+self.addEventListener('activate',event=>{
+ event.waitUntil((async()=>{
+  const keys=await caches.keys();
+  await Promise.all(keys.filter(key=>(key.startsWith('veritas-v')||key.startsWith('veritas-shell-'))&&key!==CACHE).map(key=>caches.delete(key)));
+  await self.clients.claim();
+ })());
+});
+self.addEventListener('fetch',event=>{
+ const req=event.request;
+ if(req.method!=='GET')return;
+ const url=new URL(req.url);
+ if(url.origin!==self.location.origin)return;
+ // Die große BLS-Datei verbleibt im IndexedDB der Anwendung, nicht doppelt im Cache.
+ if(url.pathname.endsWith('/bls4-data.json.gz'))return;
+ event.respondWith((async()=>{
+  const cache=await caches.open(CACHE);
+  try{
+   // Online immer aktuelle App-Dateien vom Server holen.
+   const response=await fetch(req,{cache:'no-store'});
+   if(response.ok && (req.mode==='navigate'||STATIC.some(f=>new URL(f,self.registration.scope).pathname===url.pathname))){
+    try{await cache.put(req,response.clone())}catch(e){/* Cache unwichtig bei begrenztem Speicher */}
+   }
+   return response;
+  }catch(error){
+   // Offline: zuletzt gespeicherte Dateien benutzen.
+   const existing=await cache.match(req,{ignoreSearch:true});
+   if(existing)return existing;
+   if(req.mode==='navigate'){
+    const homepage=await cache.match('./index.html');
+    if(homepage)return homepage;
+   }
+   throw error;
+  }
+ })());
+});

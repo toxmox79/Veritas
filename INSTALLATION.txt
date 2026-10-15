@@ -1,0 +1,21 @@
+VERITAS 3.1 – AUTOMATISCHE PWA-UPDATES
+
+Folgende 5 Dateien im Hauptordner von https://github.com/toxmox79/Veritas ersetzen bzw. hinzufügen:
+- index.html (ersetzen)
+- app.js (ersetzen; entfernt doppelte Service-Worker-Registrierung)
+- sw.js (ersetzen; neue Cache-Strategie)
+- updates.js (NEU)
+- updates.css (NEU)
+
+NICHT entfernen oder löschen: bls4-data.json.gz, Daten in IndexedDB, Einstellungen in localStorage.
+
+Wie es danach funktioniert:
+1. Veritas sucht beim Start, beim Wechsel zurück in die App und alle 30 Minuten nach Updates.
+2. Neue Programmdateien werden vom Server neu geholt, statt dauerhaft aus veralteten Caches.
+3. Bei geänderter sw.js erscheint ein Updatehinweis. „Jetzt aktualisieren“ aktiviert die neue Version und lädt die Ansicht neu.
+4. Offene Eingaben bleiben erhalten, bis man aktiv aktualisiert. Lokale Profile und BLS-Daten bleiben bestehen.
+
+WICHTIG FÜR SPÄTERE RELEASES: Die Konstante CACHE in sw.js (z. B. veritas-shell-v32 -> v33) bei jeder Veröffentlichung ändern, damit ein sichtbarer Updatehinweis zuverlässig ausgelöst wird.
+Die erste Umstellung kann einmal normales Neuladen/Neustarten der PWA benötigen, aber kein Löschen von Browserdaten.
+
+Technik: Cache Storage = Programmdateien (werden aktualisiert); IndexedDB und localStorage = persönliche Nutzerdaten (werden NICHT geleert).
