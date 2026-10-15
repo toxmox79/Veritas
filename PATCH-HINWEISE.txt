@@ -1,0 +1,9 @@
+Veritas 3.0 – Bugfix Nahrungsergänzungsmittel
+
+Diese Dateien im STAMMVERZEICHNIS von github.com/toxmox79/Veritas ersetzen.
+
+Wichtig: bls4-data.json.gz, bls-database.js und weitere App-Dateien NICHT löschen oder ersetzen. Die auf GitHub veröffentlichte BLS 4.0 bleibt erhalten.
+
+Test: EAN 4058172310270, Modus Nahrungsergänzung, Hersteller-Tagesportion „1 Messlöffel“, Stoff „L-Ascorbinsäure“, Menge 120, Einheit mg. Ergebnis: 120 mg Vitamin C = 150 % NRV; BfR-Vergleich 250 mg; Lebensmittelmengen aus BLS.
+
+Bei Kombipräparaten den Nährstoff + Menge mehrmals hinzufügen; alternative Texteingabe unterstützt „L-Ascorbinsäure 120 mg“.
