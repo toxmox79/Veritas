@@ -61,3 +61,20 @@ In den Einstellungen lassen sich freiwillig mehrere Krankheiten/Ernährungstheme
 - Vergleiche verwenden Open Food Facts. Internetverbindung erforderlich. Vergleichsdaten werden nicht dauerhaft gespeichert. Mehr Daten bedeuten nicht automatisch bessere Qualität; unterschiedliche Produktgruppen sind nur eingeschränkt vergleichbar.
 
 Installationshinweis: Nach Aktualisierung auf GitHub Pages die Seite bei Bedarf neu laden, damit der neue Service-Worker-Cache aktiv wird.
+
+
+## Veritas 2.1 – aussagekräftiger Produktvergleich
+
+- **Deklarierte Zutatenprozente** (z. B. 13 % vs. 36 % Haselnüsse) und erste Zutat werden extrahiert und direkt gegenübergestellt. Keine Schätzungen fehlender Werte.
+- **Nährwertvorteile je Produkt** (Zucker, Fett, gesättigte Fette, Energie) mit konkreten Differenzen. Kein pauschaler Gesundheitssieger bei gemischtem Ergebnis. Vergleich bevorzugt gleiche Produktgruppen.
+- **Ergänzte Produktdaten** für die beiden geprüften EANs 3017620422003 und 4018087009331; Produktquellen erscheinen im Vergleich und in der Einzelansicht. Quellenstand 15.10.2026. Bei anderen EANs werden Open Food Facts v3 und, wenn nötig, v2 abgefragt. Nicht jede EAN hat verlässliche ergänzende Daten.
+- **„Etikett ergänzen“**: Produktname, komplette Zutatenliste und Nährwerte können bei fehlenden/abweichenden Informationen per Hand lokal im Browser ergänzt, korrigiert und wieder gelöscht werden. Keine automatische Validierung eingegebener Werte; die konkrete Verpackung bleibt maßgeblich.
+- **Wichtiger chargenabhängiger Rückruf (nur ein konkret geprüfter Fall)**: Für Nudossi 300 g / EAN 4018087009331 mit MHD 01.08.2026–30.09.2026 wird der bestätigte Salmonellen-Rückruf samt Herstellerlink angezeigt. Diese lokal gepflegte Meldung ist **kein vollständiger oder automatisch aktualisierter Rückrufdienst**. Die EAN allein erlaubt keine Aussage zur Betroffenheit des einzelnen Glases.
+- Nach einem Versionswechsel ggf. PWA schließen, neu öffnen und einmal online aktualisieren, damit die neue Cache-Version geladen wird.
+
+**Nachweise für manuell ergänzte Datensätze:**
+- Nutella / EAN 3017620422003: https://www.nutella.com/de/de/produkte/nutella
+- Nudossi / EAN 4018087009331: https://www.olial.de/produkt/nudossi-haselnuss-nougat-creme-300g/
+- Chargenrückruf Nudossi: https://www.vadossi.de/2026/06/15/produktrueckruf-fuer-nudossi-haselnuss-nougat-creme/
+
+**Einschränkungen:** Unterschiedliche Rezeptur-/Produktstände, länderspezifische Varianten und Allergene können auf Händlerseiten veraltet oder unvollständig sein. Bei Allergien, Gesundheitsprofilen und Rückrufen Etikett/MHD prüfen. „Weniger Zucker“ ersetzt keine Beurteilung der Kohlenhydrate und Portionsgröße bei Diabetes.

@@ -99,3 +99,29 @@
 @media(max-width:740px){.compareSlots,.compareVerdicts{grid-template-columns:1fr}.compareSlot{padding:13px}.comparePanel{padding:16px}.compareTable th,.compareTable td{padding:10px 7px;font-size:13px}.comparePanel .headActions{margin-bottom:0}}
 @media(max-width:380px){.compareForm .scanrow{flex-wrap:wrap}.compareForm .scanrow .primary{width:100%}}
 .highContrast .compareSlot,.highContrast .compareVerdict,.highContrast .compareData{border:2px solid #3b5e47}
+
+/* Veritas 2.1: erklärender Produktvergleich und Datenquellen */
+.compareIngredientLists{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.compareIngredientLists article,.compareProvenance,.compareEdit{background:#fafcf9;border:1px solid #dce8db;border-radius:14px;padding:15px}
+.compareIngredientLists h3,.compareProvenance h3,.compareEdit h3{font-size:17px;margin:0 0 8px}
+.compareIngredientLists p,.compareProvenance p,.compareEdit p{font-size:14px;color:#3b5345;line-height:1.6;margin:7px 0;overflow-wrap:anywhere}
+.compareProvenance a{color:#146046;text-decoration:underline;text-underline-offset:2px}
+.compareManual{background:#fff !important;margin-top:6px!important;font-size:14px}
+.compareEdit{margin-top:18px;scroll-margin-top:14px}
+.compareEditForm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.compareEditForm label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700}
+.compareEditForm input,.compareEditForm textarea{font:inherit;border:1px solid #bacfc0;border-radius:8px;padding:10px;min-width:0;width:100%;background:#fff;color:#173e2a}
+.compareEditForm .editWide{grid-column:1/-1}
+.compareEditForm .secondary{margin-left:8px}
+.recallAlert{border:2px solid #b33a38;background:#fff2ed;border-radius:14px;padding:16px;margin:0 0 16px;color:#6f2423}
+.recallAlert strong{font-size:18px;color:#942a25}
+.recallAlert p{margin:8px 0;font-size:15px;line-height:1.55}
+.recallAlert a{display:inline-block;font-weight:750;color:#84221c;text-decoration:underline;margin:3px 0 8px}
+.recallAlert small{display:block;line-height:1.4;color:#783e37}
+#productRecall:not(:empty){margin:15px 0}
+@media(max-width:740px){.compareIngredientLists,.compareEditForm{grid-template-columns:1fr}.compareTable th:first-child{width:34%}.compareTable th:nth-child(2),.compareTable th:nth-child(3){width:33%}}
+
+.compareHighlights{padding:13px 16px;background:#f0f8ef;border:1px solid #cae2c9;border-radius:13px;margin:0 0 13px}
+.compareHighlights h3{margin:0 0 6px;font-size:16px;color:#19553c}
+.compareHighlights ul{margin:5px 0 0;padding-left:21px;color:#314d3c;font-size:14px;line-height:1.7}
+.compareHighlights li+li{margin-top:3px}
