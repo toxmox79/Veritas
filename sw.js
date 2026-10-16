@@ -2,7 +2,7 @@
  * Bei jeder Veröffentlichung von geänderten Dateien CACHE-Version erhöhen.
  */
 'use strict';
-const CACHE='veritas-shell-v35';
+const CACHE='veritas-shell-v36';
 const STATIC=[
  './','./index.html','./styles.css','./updates.css','./app.js','./updates.js',
  './supplements.js','./ai-research.js','./ai-research.css','./food-equivalents.js','./bls-database.js','./supplements.css',

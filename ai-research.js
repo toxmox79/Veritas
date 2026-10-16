@@ -6,8 +6,8 @@
 (() => {
   const $=id=>document.getElementById(id);
   const KEY='veritas-gemini-user-key-v1',PREF='veritas-ai-prefs-v1';
-  const MODELS=new Set(['gemini-2.5-flash','gemini-2.5-flash-lite']);
-  let key='', model='gemini-2.5-flash',remember=false,busy=false,seenCode='',lastReport=null;
+  const MODELS=new Set(['gemini-3.8-flash','gemini-3.6-flash','gemini-3.5-flash-lite']);
+  let key='', model='gemini-3.8-flash',remember=false,busy=false,seenCode='',lastReport=null,searchApproved=false;
   const normalize=s=>String(s??'').trim();
   const clean=(s,max=500)=>normalize(s).slice(0,max);
   const say=(id,message)=>{const n=$(id);if(n)n.textContent=message};
@@ -18,8 +18,18 @@
   const idOk=x=>x===true;
   const getSaved=()=>{try{return localStorage.getItem(KEY)||sessionStorage.getItem(KEY)||''}catch{return ''}};
   function boot(){
-    try{const p=JSON.parse(localStorage.getItem(PREF)||'{}');if(MODELS.has(p.model))model=p.model;remember=!!p.remember}catch{}
-    key=getSaved();$('aiApiKey').value=key;$('aiModel').value=model;$('aiRememberKey').checked=remember;
+    // Existing installations have old Gemini-2.5 options in index.html. Rebuild them in JS.
+    // A saved 2.5 model automatically migrates to 3.8 Flash.
+    const selector=$('aiModel');selector.replaceChildren();
+    for(const [id,label] of [
+      ['gemini-3.8-flash','Gemini 3.8 Flash (Standard)'],
+      ['gemini-3.6-flash','Gemini 3.6 Flash'],
+      ['gemini-3.5-flash-lite','Gemini 3.5 Flash-Lite (günstiger)']
+    ]){const option=document.createElement('option');option.value=id;option.textContent=label;selector.append(option)}
+    let migrated=false;
+    try{const p=JSON.parse(localStorage.getItem(PREF)||'{}');if(MODELS.has(p.model))model=p.model;else if(p.model)migrated=true;remember=!!p.remember}catch{}
+    key=getSaved();$('aiApiKey').value=key;selector.value=model;$('aiRememberKey').checked=remember;
+    if(migrated)say('aiSettingsStatus','Das bisherige Gemini-2.5-Modell ist für neue Nutzer eingeschränkt. Gemini 3.8 Flash wurde ausgewählt. Bitte Verbindung testen.');
     if(key)say('aiSettingsStatus',`Schlüssel ${mask(key)} geladen. Recherche nur nach Klick.`);
   }
   function save(){
@@ -43,30 +53,66 @@
     say('aiSettingsStatus','API-Schlüssel auf diesem Gerät gelöscht.');
   }
   function apiError(status,msg){
-    if(status===400)return 'Die Suchfunktion oder das gewählte Modell wird mit diesem API-Projekt nicht unterstützt. '+msg;
+    if(status===400)return 'Die gewählte API-Anfrage wird nicht unterstützt. Bei der Webrecherche prüfen, ob Google Search für dein API-Projekt freigeschaltet ist. '+msg;
     if(status===401)return 'Authentifizierung fehlgeschlagen (401). Bitte Gemini-Schlüssel in Google AI Studio überprüfen. Ein OpenRouter-Schlüssel funktioniert an diesem Google-Endpunkt nicht.';
     if(status===403)return 'Zugriff nicht erlaubt (403). Bitte API-/Projektberechtigungen und Modellzugriff in Google AI Studio kontrollieren.';
     if(status===404)return 'Das ausgewählte Gemini-Modell wurde für dieses Projekt nicht gefunden (404). Das bedeutet nicht automatisch, dass der API-Schlüssel ungültig ist. '+msg;
-    if(status===429)return 'Kostenloses Tageslimit / Rate-Limit erreicht. Später erneut versuchen oder das API-Projekt prüfen.';
+    if(status===429)return 'API-Kontingent bzw. Rate-Limit erreicht (429). Später erneut versuchen oder das API-Projekt prüfen. Kostenpflichtige Nutzung wird nicht automatisch eingeschaltet.';
     return `Gemini-Fehler ${status}: ${msg}`;
+  }
+  // Die API listet die Modelle, die das konkrete API-Projekt verwenden kann.
+  async function availableModels(apiKey){
+    const result=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000',{
+      headers:{'x-goog-api-key':apiKey},cache:'no-store'
+    });
+    const data=await result.json().catch(()=>({}));
+    if(!result.ok)throw Error(apiError(result.status,clean(data?.error?.message||result.statusText,150)));
+    return new Set((Array.isArray(data.models)?data.models:[]).map(x=>String(x.name||'').replace(/^models\//,'')));
+  }
+  function interactionResult(data){
+    // Interactions API: POST /interactions liefert model_output-Schritte,
+    // nicht mehr candidates[0].content.parts wie generateContent.
+    const texts=[],chunks=[];
+    for(const step of (Array.isArray(data?.steps)?data.steps:[])){
+      if(step.type!=='model_output')continue;
+      for(const part of (Array.isArray(step.content)?step.content:[])){
+        if(part.type==='text' && typeof part.text==='string')texts.push(part.text);
+        for(const source of (Array.isArray(part.annotations)?part.annotations:[])){
+          const uri=source.uri||source.url||source.source?.uri;
+          if(isUrl(uri))chunks.push({web:{uri,title:source.title||source.source?.title||''}});
+        }
+      }
+    }
+    // Some Google SDK versions expose output_text; REST normally uses steps.
+    const output=texts.join('\n').trim()||(typeof data.output_text==='string'?data.output_text.trim():'');
+    return {output,metadata:{groundingChunks:chunks}};
   }
   async function callGemini(prompt,search){
     const apiKey=key||getSaved();if(!apiKey)throw Error('Bitte zuerst unter Einstellungen → KI-Recherche den eigenen Gemini-API-Schlüssel hinterlegen.');
-    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),75000);
     try{
-      const response=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{
+      const body={
+        model,
+        input:prompt,
+        store:false, // Kein serverseitiger Gesprächsverlauf erforderlich.
+        generation_config:{thinking_level:'low',max_output_tokens:8000},
+        ...(search?{tools:[{type:'google_search'}]}:{})
+      };
+      const response=await fetch('https://generativelanguage.googleapis.com/v1beta/interactions',{
         method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':apiKey},signal:controller.signal,
-        body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],
-          ...(search?{tools:[{google_search:{}}]}:{}),generationConfig:{temperature:0.1,maxOutputTokens:3000}})
+        body:JSON.stringify(body),cache:'no-store'
       });
       const data=await response.json().catch(()=>({}));
-      if(!response.ok)throw Error(apiError(response.status,clean(data?.error?.message||response.statusText,220)));
-      const cand=data?.candidates?.[0];
-      const output=(cand?.content?.parts||[]).map(p=>p.text||'').join('\n').trim();
-      if(!output)throw Error('Keine auswertbare Antwort erhalten. Eventuell hat der Anbieter die Anfrage blockiert.');
-      return {output,metadata:cand?.groundingMetadata||null};
-    }catch(error){if(error.name==='AbortError')throw Error('Zeitüberschreitung nach 60 Sekunden. Bitte später erneut versuchen.');
-      if(error instanceof TypeError)throw Error('API nicht erreichbar (Netzwerk oder CORS). Falls der Anbieter Browseranfragen blockiert, wird ein geschützter Proxy benötigt.');throw error;
+      if(!response.ok){
+        if(search && (response.status===403 || response.status===400))
+          throw Error('Google-Websuche für dieses API-Projekt nicht verfügbar. Seit Gemini 3.x kann die Websuche einen kostenpflichtigen Tarif benötigen. '+clean(data?.error?.message||'',180));
+        throw Error(apiError(response.status,clean(data?.error?.message||response.statusText,220)));
+      }
+      const parsed=interactionResult(data);
+      if(!parsed.output)throw Error('Die Interactions API hat keinen auswertbaren Text geliefert. Bitte Modell und Kontingent prüfen.');
+      return parsed;
+    }catch(error){if(error.name==='AbortError')throw Error('Zeitüberschreitung nach 75 Sekunden. Bitte später erneut versuchen.');
+      if(error instanceof TypeError)throw Error('API nicht erreichbar (Netzwerk oder CORS). Ein geschützter Proxy kann erforderlich sein.');throw error;
     }finally{clearTimeout(timer)}
   }
   function parseJson(text){
@@ -145,6 +191,10 @@ Antworte AUSSCHLIESSLICH als ein JSON-Objekt ohne Markdown. Schema: {"ean":"EAN 
     if(!save()){ $('groupAI').open=true;$('settings').hidden=false;$('groupAI').scrollIntoView({behavior:'smooth',block:'start'});return}
     if(!key){say('aiResearchStatus','Bitte erst einen Gemini-API-Schlüssel in Einstellungen → KI-Recherche hinterlegen.');$('settings').hidden=false;$('groupAI').open=true;$('groupAI').scrollIntoView({behavior:'smooth'});return}
     const code=normalize(state?.productCode||'');if(!/^\d{8,14}$/.test(code)&&!code.startsWith('name:')){say('aiResearchStatus','Bitte zuerst eine gültige EAN scannen oder nach Namen suchen.');return}
+    if(!searchApproved){
+      if(!window.confirm('Die Google-Websuche über Gemini 3.x ist im kostenlosen API-Kontingent möglicherweise nicht verfügbar und kann bei einem kostenpflichtigen Google-Projekt Gebühren auslösen. Jetzt eine suchgestützte Recherche starten?'))return;
+      searchApproved=true;
+    }
     const name=clean(state.product?.product_name_de||state.product?.product_name||'',150);
     const named=code.startsWith('name:');
     busy=true;$('aiResearchButton').disabled=true;$('aiResearchResults').hidden=true;
@@ -162,8 +212,26 @@ Antworte AUSSCHLIESSLICH als ein JSON-Objekt ohne Markdown. Schema: {"ean":"EAN 
   async function test(){
     if(!save())return;
     if(!key){say('aiSettingsStatus','Bitte zuerst einen API-Schlüssel eingeben.');return}
-    $('aiTestConnection').disabled=true;say('aiSettingsStatus','Verbindung wird geprüft (ohne Websuche) …');
-    try{const a=await callGemini('Antworte ausschließlich mit OK.',false);say('aiSettingsStatus',a.output?`✓ API erreichbar, Modell ${model} antwortet. Die Google-Websuche wurde dabei nicht geprüft.`:'Keine Antwort')}catch(e){say('aiSettingsStatus','Verbindung fehlgeschlagen: '+e.message)}
+    $('aiTestConnection').disabled=true;say('aiSettingsStatus','Prüfe verfügbare Modelle und die Interactions API (ohne Websuche) …');
+    try{
+      let note='';
+      try{
+        const names=await availableModels(key);
+        if(names.size&&!names.has(model)){
+          const fallback=[...MODELS].find(id=>names.has(id));
+          if(!fallback)throw Error('Für dieses Projekt ist keines der unterstützten Flash-Modelle freigeschaltet. Bitte Google AI Studio prüfen.');
+          model=fallback;$('aiModel').value=fallback;
+          note='Nicht verfügbares Modell durch '+fallback+' ersetzt. ';
+          save();
+        }
+      }catch(error){
+        if(/keines der unterstützten/.test(error.message))throw error;
+        // Nicht jeder Schlüssel darf Modelle auflisten. Der eigentliche Test entscheidet.
+        note='Modellliste nicht abrufbar; direkter Modelltest. ';
+      }
+      const a=await callGemini('Antworte ausschließlich mit OK.',false);
+      say('aiSettingsStatus',a.output?`✓ API erreichbar: ${model}. ${note}Google-Websuche wurde nicht mitgetestet.`:'Keine Antwort');
+    }catch(e){say('aiSettingsStatus','Verbindung fehlgeschlagen: '+e.message)}
     finally{$('aiTestConnection').disabled=false}
   }
   function init(){
@@ -184,5 +252,5 @@ Antworte AUSSCHLIESSLICH als ein JSON-Objekt ohne Markdown. Schema: {"ean":"EAN 
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   // Nur Diagnose-Helfer ohne Zugang zum API-Schlüssel.
-  window.VeritasAI={parseJson,sanitize,groundingSources};
+  window.VeritasAI={parseJson,sanitize,groundingSources,interactionResult};
 })();
