@@ -25,14 +25,16 @@
   function save(){
     key=$('aiApiKey').value.trim();model=$('aiModel').value;remember=$('aiRememberKey').checked;
     if(!MODELS.has(model))model='gemini-2.5-flash';
-    if(key && !/^AIza[\w-]{20,}$/.test(key)){
-      say('aiSettingsStatus','Der Schlüssel sieht nicht wie ein Gemini-API-Schlüssel aus. Bitte prüfen.');return false;
+    // Neue Gemini-Auth-Keys können mit "AQ." beginnen, ältere Standard-Keys mit "AIza".
+    // Keine starre Präfixprüfung: Ob ein Schlüssel gültig ist, entscheidet der API-Verbindungstest.
+    if(key && (key.length<12 || /\s/.test(key) || /[^\x21-\x7e]/.test(key))){
+      say('aiSettingsStatus','Bitte den vollständigen API-Schlüssel ohne Leerzeichen, Zeilenumbrüche oder zusätzliche Zeichen einfügen.');return false;
     }
     try{sessionStorage.removeItem(KEY);localStorage.removeItem(KEY);
       if(key)(remember?localStorage:sessionStorage).setItem(KEY,key);
       localStorage.setItem(PREF,JSON.stringify({model,remember}));
     }catch{say('aiSettingsStatus','Speichern nicht möglich – Browser-Speicher deaktiviert.');return false}
-    say('aiSettingsStatus',key?`Schlüssel ${mask(key)} gespeichert (${remember?'auf diesem Gerät':'für diese Sitzung'}).`:'Kein API-Schlüssel hinterlegt.');
+    say('aiSettingsStatus',key?`Schlüssel ${mask(key)} gespeichert (${remember?'auf diesem Gerät':'für diese Sitzung'}). Bitte „Verbindung testen“ wählen – das Format allein bestätigt keine Gültigkeit.`:'Kein API-Schlüssel hinterlegt.');
     return true;
   }
   function clearKey(){
@@ -42,7 +44,9 @@
   }
   function apiError(status,msg){
     if(status===400)return 'Die Suchfunktion oder das gewählte Modell wird mit diesem API-Projekt nicht unterstützt. '+msg;
-    if(status===401||status===403)return 'API-Schlüssel abgelehnt oder Suchzugriff nicht erlaubt. Bitte Google AI Studio und Projekt-Einstellungen prüfen.';
+    if(status===401)return 'Authentifizierung fehlgeschlagen (401). Bitte Gemini-Schlüssel in Google AI Studio überprüfen. Ein OpenRouter-Schlüssel funktioniert an diesem Google-Endpunkt nicht.';
+    if(status===403)return 'Zugriff nicht erlaubt (403). Bitte API-/Projektberechtigungen und Modellzugriff in Google AI Studio kontrollieren.';
+    if(status===404)return 'Das ausgewählte Gemini-Modell wurde für dieses Projekt nicht gefunden (404). Das bedeutet nicht automatisch, dass der API-Schlüssel ungültig ist. '+msg;
     if(status===429)return 'Kostenloses Tageslimit / Rate-Limit erreicht. Später erneut versuchen oder das API-Projekt prüfen.';
     return `Gemini-Fehler ${status}: ${msg}`;
   }
