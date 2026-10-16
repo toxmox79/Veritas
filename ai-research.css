@@ -7,3 +7,22 @@
 @media(max-width:540px){.aiResearchRow{grid-template-columns:1fr;gap:3px}.aiKeyRow{flex-wrap:wrap}.aiLookupTop button{width:100%}.aiSettingsActions button{flex:1 1 100%}}
 
 .aiNameForm{margin:14px 0;padding:14px;border:1px solid #c1d8c7;background:#f4faf5;border-radius:13px}.aiNameForm>label{display:block;font-weight:750;margin-bottom:8px}.aiNameControls{display:flex;gap:8px;flex-wrap:wrap}.aiNameControls input{flex:1 1 220px;min-width:0;padding:11px;border:1px solid #bcd0c3;border-radius:10px;font:inherit}.aiNameControls button{min-height:44px}.aiNameForm small{display:block;color:#596e61;margin-top:6px}.aiNameForm[hidden]{display:none!important}
+
+/* v3.6 – manuelle, kostenlose Analyse belegter Produkttexte */
+.aiManualFallback{border-top:1px solid #c6dacc;padding-top:12px;margin-top:18px}
+.aiManualFallback summary{cursor:pointer;color:#15553c;font-weight:750;line-height:1.5;padding:8px 0}
+.aiManualFallback p{line-height:1.5}
+.aiManualFallback label{display:block;font-weight:700;margin-top:12px;font-size:.9em}
+.aiManualFallback input,.aiManualFallback textarea{display:block;width:100%;min-width:0;font:inherit;color:#163d2e;padding:10px;margin-top:5px;border:1px solid #bfd6c8;border-radius:9px;background:white}
+.aiManualFallback textarea{resize:vertical;line-height:1.55}
+.aiManualFallback button{min-height:45px;margin:8px 8px 5px 0}
+
+/* Veritas v3.7 – Multi-Provider */
+.aiProviderPicker{margin:12px 0 18px;padding:12px;border:1px solid #bcdbc8;background:#eef8f0;border-radius:12px}
+.aiProviderPicker label{display:block;font-weight:800;margin-bottom:7px}
+.aiProviderPicker select{width:100%;padding:12px;border-radius:10px;border:1px solid #bfd1c4;background:white;color:#184c39;font:inherit}
+.aiProviderPicker p{font-size:.87em;line-height:1.5;margin:9px 0}
+.aiProviderPicker a{font-size:.88em;color:#176342;text-decoration:underline}
+.aiModelExtras{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:0 0 10px}
+.aiModelExtras button{min-height:44px}
+.aiSettings .aiModelExtras input{flex:1 1 200px;margin:0;min-width:0}

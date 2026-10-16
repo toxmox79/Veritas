@@ -1,35 +1,28 @@
-Veritas – Gemini 3.8 / Interactions API Update (v3.5)
+Veritas 3.7 – Mehrere KI-Anbieter (BYOK)
 
-Warum?
-Gemini 2.5 Flash ist für neu angelegte Google-API-Zugänge nicht mehr verfügbar.
-Google empfiehlt Gemini 3.8 Flash und die Interactions API.
+ANBIETER: Gemini, GroqCloud, NVIDIA NIM, OpenRouter
+- Anbieter in Einstellungen → KI-Recherche auswählen.
+- Jeder Anbieter hat seinen eigenen API-Schlüssel, Modell und Verbindungstest.
+- Groq: GPT-OSS 20B/120B können über Browser Search direkt nach EAN suchen.
+- Gemini: Google Search nur sofern dein Tarif das erlaubt.
+- NVIDIA / OpenRouter: Hersteller-Webseite selbst öffnen, Quellenlink und Produkttext unten einfügen, dann mit KI auswerten. Keine erfundene Internetsuche!
+- Modelle können aus einer API-Modellliste geladen oder manuell als Modell-ID eingegeben werden.
+- Ohne Haken „Schlüssel auf diesem Gerät speichern“ bleibt der Schlüssel im sessionStorage.
+- Älterer Gemini-Schlüssel wird weiter erkannt.
+- Normale BLS-/Allergie-/Prüfprofil-Daten und Etiketten bleiben unangetastet.
 
-Enthaltene Änderungen
-- Wechsel von generateContent auf POST /v1beta/interactions.
-- Neue Modellwahl: 3.8 Flash (Standard), 3.6 Flash, 3.5 Flash-Lite.
-- Bisher gespeicherte 2.5-Modellwahl wird auf 3.8 umgestellt.
-- Verbindungstest ruft verfügbare Modelle ab und prüft die Interactions API.
-- Neue Struktur für Suchbelege (Annotations der Interactions API).
-- Sicherer API-Schlüssel bleibt lokal; kein Schlüssel in diesem ZIP.
-- store:false deaktiviert die optionale serverseitige Interaktionsspeicherung.
-- Vor Suchaufruf wird auf potenzielle Kosten hingewiesen.
-- Offline-Cache aktualisiert auf veritas-shell-v36.
+INSTALLATION:
+1. ai-research.js, ai-research.css im Repository-Hauptordner ersetzen.
+2. sw.js zuletzt ersetzen; Browser-PWA erkennt den Versionswechsel.
+3. Neue Veritas-Version aktivieren; unter Einstellungen → KI-Recherche Anbieter auswählen.
+4. Den passenden Anbieter-Schlüssel eintragen und Verbindung testen.
 
-Installation auf toxmox79/Veritas (GitHub Pages)
-1. ai-research.js im Hauptverzeichnis ersetzen.
-2. sw.js im Hauptverzeichnis zuletzt ersetzen.
-3. GitHub-Pages-Deployment abwarten.
-4. App öffnen, bei Updatehinweis „Jetzt aktualisieren“ wählen.
-5. Einstellungen > KI-Recherche > „Verbindung testen“.
+SICHERHEIT:
+Die Keys stehen im Browser (nicht verschlüsselt). Kein Betreiber-Key im GitHub-Code!
+Wenn die PWA öffentlich mit gemeinsamem Key betrieben wird, ist ein Backend nötig.
+Live-API-Aufrufe können Kosten/Rate-Limits verursachen. Kein automatisches Provider-Fallback und keine automatischen Gebühren.
+Nur Quellenlinks und Herstellerangaben auf reale Plausibilität prüfen; keine sichere Herstelleridentifikation durch KI allein.
 
-WICHTIGE KOSTEN-INFORMATION
-Google Gemini 3.8 Flash hat ein eingeschränktes kostenloses Tokenkontingent.
-Google Search Grounding mit Gemini 3.x steht im kostenlosen API-Tarif laut Google-Preisliste nicht allgemein zur Verfügung.
-Für das bezahlte Projekt gibt es aktuell 5000 freie Suchanfragen pro Monat, danach kostenpflichtige Abrechnung.
-Der App-Verbindungstest prüft ausdrücklich ohne Google-Websuche.
-
-Daten bleiben erhalten
-localStorage, IndexedDB und BLS-4.0-Daten werden nicht gelöscht.
-
-Teststatus
-Lokale JavaScript- und Mock-API-Tests, kein echter Schlüssel oder Live-Kostentest.
+BEACHTE: Groq Browser Search ist nur bei den dokumentierten GPT-OSS-Modellen möglich.
+Groq Compound wurde im September 2026 eingestellt und wird nicht benutzt.
+NVIDIA/OpenRouter übernehmen keine reine EAN-Websuche ohne externen Quellenzugriff.
