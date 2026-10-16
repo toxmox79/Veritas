@@ -1,9 +1,51 @@
-Veritas 3.0 – Bugfix Nahrungsergänzungsmittel
+VERITAS 3.3 – KI-Recherche für Nahrungsergänzungsmittel
+==================================================
+Stand: 16.10.2026
 
-Diese Dateien im STAMMVERZEICHNIS von github.com/toxmox79/Veritas ersetzen.
+INHALT DES PATCHES (Dateien für das GitHub-Repository-Hauptverzeichnis):
+  index.html         NEU (enthält die neue Einstellungsgruppe und Suchoberfläche)
+  ai-research.js     NEU (Gemini-API und Recherchelogik)
+  ai-research.css    NEU (Darstellung)
+  sw.js              AKTUALISIERT (Cache v34)
 
-Wichtig: bls4-data.json.gz, bls-database.js und weitere App-Dateien NICHT löschen oder ersetzen. Die auf GitHub veröffentlichte BLS 4.0 bleibt erhalten.
+INSTALLATION
+1. Vorhandene index.html und sw.js gegebenenfalls sichern.
+2. index.html, ai-research.js und ai-research.css im Hauptverzeichnis
+   von toxmox79/Veritas hochladen bzw. ersetzen.
+3. sw.js als LETZTE Datei austauschen (Version veritas-shell-v34).
+4. Veritas neu öffnen und gegebenenfalls 'Jetzt aktualisieren' bestätigen.
+5. Unter Einstellungen > KI-Recherche einen eigenen Gemini API-Schlüssel
+   aus https://aistudio.google.com/apikey eingeben.
+6. Modell Gemini 2.5 Flash wählen, 'Verbindung testen' betätigen,
+   Einstellungen speichern.
+7. Nahrungsergänzung auswählen und EAN eingeben. Bei nicht vorhandenen
+   Daten auf 'EAN recherchieren' klicken. Ohne EAN den neuen Namen- und
+   Hersteller-Suchbereich benutzen.
 
-Test: EAN 4058172310270, Modus Nahrungsergänzung, Hersteller-Tagesportion „1 Messlöffel“, Stoff „L-Ascorbinsäure“, Menge 120, Einheit mg. Ergebnis: 120 mg Vitamin C = 150 % NRV; BfR-Vergleich 250 mg; Lebensmittelmengen aus BLS.
+SICHERHEIT / KOSTEN
+- KEIN API-Schlüssel ist Bestandteil dieses ZIPs.
+- Ohne 'Auf diesem Gerät speichern' liegt der Schlüssel nur in der Sitzung.
+- Bei aktivierter Speicherung liegt er im lokalen Browserspeicher. Dies ist
+  NICHT verschlüsselt; für fremde/gemeinsam genutzte Geräte ungeeignet.
+- Eine öffentliche App mit einem zentral hinterlegten Schlüssel benötigt
+  einen serverseitigen Proxy, z. B. Cloudflare Worker mit Rate-Limit.
+- API-Nutzung und Suchkontingente hängen vom eigenen Google-Projekt ab.
+- Keine KI-Anfrage geschieht ohne ausdrücklichen Klick.
+- Allergien, Diagnosen, individuelle Health-Profile und BLS-Daten werden
+  nicht an Gemini gesendet. Nur EAN/Produktname und Rechercheauftrag.
+- KI-Ergebnisse werden als unbestätigte Recherche mit Webquellen angezeigt.
+  Webquellen müssen EAN, genaue Produktvariante und Dosierung belegen.
+- Tagesmengen werden bei Widersprüchen nicht automatisch übernommen.
+- Keine Veröffentlichung von recherchierten Daten ohne individuelle
+  Bestätigung. Eintrag nur nach Klick auf 'Speichern' im Etikett-Editor.
 
-Bei Kombipräparaten den Nährstoff + Menge mehrmals hinzufügen; alternative Texteingabe unterstützt „L-Ascorbinsäure 120 mg“.
+UNVERÄNDERT: bls4-data.json.gz, BLS-Daten im IndexedDB, Allergien,
+Gesundheitsprofile, sonstige Datensätze und gespeicherte Etikette.
+
+TESTSTATUS
+- JavaScript-Syntaxprüfung: erfolgreich.
+- Statische HTML- und Service-Worker-Prüfung: erfolgreich.
+- Testfälle für EAN-Identität, Namenssuche, ungültige Quellen,
+  Dosierungskonflikte und strukturierte Antworten: erfolgreich.
+- Echter Google-API-Liveaufruf: nicht möglich ohne Nutzerschlüssel.
+- Vollständiger Browser-Endtest lokal: von Testumgebung blockiert.

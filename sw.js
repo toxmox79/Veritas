@@ -2,10 +2,10 @@
  * Bei jeder Veröffentlichung von geänderten Dateien CACHE-Version erhöhen.
  */
 'use strict';
-const CACHE='veritas-shell-v32';
+const CACHE='veritas-shell-v34';
 const STATIC=[
  './','./index.html','./styles.css','./updates.css','./app.js','./updates.js',
- './supplements.js','./food-equivalents.js','./bls-database.js','./supplements.css',
+ './supplements.js','./ai-research.js','./ai-research.css','./food-equivalents.js','./bls-database.js','./supplements.css',
  './comparison.js','./precaution.js','./alternatives.js','./product-evidence.js',
  './authenticity.js','./additive-health.js','./health-profile.js','./manifest.webmanifest',
  './icons/icon-192.png','./icons/icon-512.png','./icons/logo.png'
